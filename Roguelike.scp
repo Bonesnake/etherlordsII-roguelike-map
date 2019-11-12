@@ -1,0 +1,633 @@
+--SCRIPT AND MAP MADE BY BONESNAKE
+--
+--Feel free to modify the code as you like
+--I've made this code a while back, so some of it might be obsolete or inconsistent
+--If you have any questions, find me on steam (id: bonesnake)
+--
+--g_MainHeroId = ExGetMainHeroId()
+--
+--
+--Etherlords 2 local functions
+function Local_Hook_GameStarted()
+	--starts a random background music
+	ExStartBackgroundTheme(bg_theme_list[random(1, getn(bg_theme_list))]);
+end;
+--
+function Local_Hook_OnStep()
+	--starting the game
+	if game_started == false and ExIsAlive(g_MainHeroId) then
+		--rerolls main hero's shape and spells
+		GenerateProtagonist();
+		--moves the camera and the hero to the correct location
+		ExAddCommandCameraAttach(nil);
+		ExCameraInstantScrollToPos(38, 11);
+		ExAddCommandCameraRotate(ANGLE_NORTH);
+		ExAddCommandStartObservation("spawn", 38, 11, 6);
+		ExAddCommandMoveAndUseObject(g_MainHeroId, 39)
+		ExAddCommandFinishObservation("spawn");
+		game_started = true;
+	end;
+end;
+--
+function Local_Hook_OnPreUse(object_id, hero_id)
+	--teleporter
+	if object_id == 39 then
+		TeleportToSpawn();
+		return 1;
+		--old version, prevents teleporter from working if there are living mobs
+		--will work only if hero is the only living mob on the map
+		--if ExGetMobCount() == 1 then
+			--TeleportToSpawn();
+			--return 1;
+		--else
+			--ExMessageBoxDialog("The teleporter does not seem to be working. Eliminate nearby mobs and try again.", 1, 1);
+		--end;
+	else --to prevent errors when using other objects
+		return 1;
+	end;
+end;
+--
+function Local_Hook_OnHeroKill(hero_id)
+	--gives loot to hero after enemy is killed
+	if hero_id ~= g_MainHeroId then
+		--clears corpse for aeshetics
+		RemoveCorpse(hero_id);
+		if not auto_kill then
+			mob_level = ExGetHeroLevel(hero_id);
+			total_loot_count = GetLootCount(mob_level);
+			--loot system v2
+			for i = 1, ceil(total_loot_count / 5) do
+				current_loot_count = (total_loot_count - (5 * (i - 1)));
+				if current_loot_count > 5 then
+					current_loot_count = 5;
+				end;
+				for j = 1, current_loot_count do
+					loot_level = GetLootLevel(mob_level);
+					loot = loot_list[loot_level][random(1, getn(loot_list[loot_level]))];
+					ExAddLootMessageSpell(loot);
+					ExAddSpell(g_MainHeroId, loot);
+				end;
+				ExSendLootMessage();
+			end;
+		end;
+		--loot system v1 (problem: overflows screen if loot count reaches certain number)
+		--for i = 1, loot_count do
+			--loot_level = GetLootLevel(mob_level);
+			--loot = loot_list[loot_level][random(1, getn(loot_list[loot_level]))];
+			--ExAddLootMessageSpell(loot);
+			--ExAddSpell(g_MainHeroId, loot);
+		--end;
+		--ExSendLootMessage();
+	end;
+end;
+--gets the level of an item
+function GetLootLevel(mob_level) --the level of the mob that drops the item
+	--default item level
+	loot_level = 1;
+	--algorithm to increase item level (based on chances)
+	for i = 1, 3 do
+		scope = (20 * (mob_level - 1)) - ((i - 1) * 80);
+		if random(1, 100) < scope then
+			loot_level = loot_level + 1;
+		end;
+	end;
+	return loot_level;
+end;
+--gets loot count
+function GetLootCount(mob_level) --the level of the mob that drops the item
+	--the higher the level of the mob, the higher the chance for additional loot
+	bonus_count = 0;
+	for i = 1, 5 do
+		scope = (20 * mob_level) - ((i - 1) * 80);
+		if scope >= 100 then
+			scope = 95;
+		end;
+		if random(1, 100) < scope then
+			bonus_count = bonus_count + 1;
+		end;
+	end;
+	--final item count
+	item_count = mob_level + 1 + bonus_count;
+	return item_count;
+end;
+--this function generates a new protagonist (rerolls shape and spells)
+function GenerateProtagonist()
+	--sets hero's shape
+	ExSetHeroShape(g_MainHeroId, hero_shape_list[random(1, getn(hero_shape_list))]);
+	--clears hero's hand and gives new spells
+	ExClearHand(g_MainHeroId);
+	--the number of times a rolled spell will be present at the hero's hand
+	--should not be higher than 4, set 2 or 3 for optimal efficiency
+	spell_recurrence = 2;
+	for i = 1, 16 / spell_recurrence do
+		spell_index = random(1, getn(loot_list[1]))
+		for j = 1, spell_recurrence do
+			ExAddSpellToHand(g_MainHeroId, loot_list[1][spell_index]);
+		end;
+	end;
+end;
+--function that is called when the map is about to be rerolled
+function TeleportToSpawn()
+	--camera functions (for aesthetics)
+	ExCameraInstantScrollToPos(38, 11);
+	ExHideExploration();
+	--places objects (mobs, buildings, terrain)
+	PlaceObjects();
+end;
+--removes objects before placing them to prevent collision errors
+function RemoveObjects()
+	--terrain objects
+	for i = 1, getn(terrain_objects) do
+		ExTakeObject(terrain_objects[i]);
+	end;
+	--resources
+	for i = 1, getn(resource_objects) do
+		ExTakeObject(resource_objects[i]);
+	end;
+	--special objects (specialization shrines and artifacts)
+	for i = 1, getn(special_objects) do
+		ExTakeObject(special_objects[i]);
+	end;
+	--shops
+	for i = 1, getn(shop_objects) do
+		ExTakeObject(shop_objects[i]);
+	end;
+	--mobs
+	living_mobs = getn(mob_objects);
+	if living_mobs > 0 then
+		--prevents hero from getting loot if mobs are killed by the code
+		auto_kill = true;
+		for i = 1, living_mobs do
+			ExKillHero(mob_objects[i]);
+		end;
+		auto_kill = false;
+		mob_objects = {};
+	end;
+end;
+--places objects (mobs, buildings, terrain) according to specific random rolls
+function PlaceObjects()
+	--removes objects first to prevent errors
+	RemoveObjects();
+	--rerolls resources
+	resource_objects = ShuffledArray(resource_objects);
+	--index of the resource to be placed
+	resource_index = 0;
+	--places special objects
+	special_object_count = special_object_count + 1;
+	ExPlaceObject(special_objects[special_object_count], 38, 68);
+	special_object_count = special_object_count + 1;
+	ExPlaceObject(special_objects[special_object_count], 43, 68);
+	--places a shop
+	ExPlaceObject(shop_objects[random(1, getn(shop_objects))], 41, 40);
+	--starting area objects
+	--entrance guardian
+	area_index = 1;
+	position_index = 1;
+	SpawnMob(area_index, position_index);
+	--other mobs
+	position_index = ArrayOfIndexes(2, getn(position[area_index]), true);
+	mob_count = random(1, 2);
+	for i = 1, mob_count do
+		SpawnMob(area_index, position_index[i]);	
+	end;
+	--resources
+	resource_count = random(1, getn(position_index) - mob_count);
+	if resource_count > 0 then
+		for i = mob_count + 1, mob_count + resource_count do
+			PlaceResource(position[area_index][position_index[i]].x, position[area_index][position_index[i]].y);
+		end;
+	end;
+	--starting area blockade
+	if random(1, 3) == 1 then
+		ExPlaceObject(6, 33, 14);
+		ExPlaceObject(11, 40, 14);
+	end;
+	--side area objects
+	side = random(1, 2); --(1 = vital side, 2 = kinet side)
+	area_index = side + 1;
+	position_index = ArrayOfIndexes(1, getn(position[area_index]), true);
+	mob_count = random(2, 3);
+	for i = 1, mob_count do
+		SpawnMob(area_index, position_index[i]);
+	end;
+	--resources
+	resource_count = random(1, getn(position_index) - mob_count);
+	if resource_count > 0 then
+		for i = mob_count + 1, mob_count + resource_count do
+			PlaceResource(position[area_index][position_index[i]].x, position[area_index][position_index[i]].y);
+		end;
+	end;
+	--side area blockades
+	if side == 1 then --vital side open
+		ExPlaceObject(67, 42, 23);
+	else --kinet side open
+		ExPlaceObject(75, 30, 24);
+		--ending blockades
+		ExPlaceObject(192, 35, 46);
+		ExPlaceObject(188, 45, 45);
+		ExPlaceObject(189, 46, 45);
+		ExPlaceObject(190, 44, 45);
+	end;
+	--final area objects
+	area_index = getn(position);
+	position_index = ArrayOfIndexes(1, getn(position[area_index]) - 1, true);
+	mob_count = random(1, 2);
+	for i = 1, mob_count do
+		SpawnMob(area_index, position_index[i]);	
+	end;
+	--escape guardian
+	SpawnMob(area_index, getn(position[area_index]), true);
+	--resources
+	resource_count = random(1, getn(position_index) - mob_count);
+	if resource_count > 0 then
+		for i = mob_count + 1, mob_count + resource_count do
+			PlaceResource(position[area_index][position_index[i]].x, position[area_index][position_index[i]].y);
+		end;
+	end;
+end;
+--spawns a resource at the specified position
+function PlaceResource(x, y)
+	resource_index = resource_index + 1;
+	ExPlaceObject(resource_objects[resource_index], x, y);
+end;
+
+--spawns a mob from the specified array index (means game area, ie: index 1 is starting zone, index 2 is left side...)
+function SpawnMob(area_index, position_index, is_boss)
+	--sets the mob's level
+	hero_level = ExGetHeroLevel(g_MainHeroId);
+	if not is_boss then
+		mob_level = random(hero_level - 1, hero_level);
+	else
+		mob_level = hero_level + 1;
+	end;
+	--mob level correction in case of incorrect values
+		if mob_level < 1 then
+			mob_level = 1;
+		end;
+		if mob_level > getn(mob_list) then
+			mob_level = getn(mob_list);
+		end;
+	--creates the mob at the specified location and sets its rotation mirror
+	mob_objects[getn(mob_objects)+1] = ExCreateHeroForPlayer( 0, mob_list[mob_level][random(1, getn(mob_list[mob_level]))], position[area_index][position_index].x, position[area_index][position_index].y );
+	ExSetRotateMirror(mob_objects[getn(mob_objects)], position[area_index][position_index].rot );
+end;
+--creates an array of incrementing numbers between the given values (includes those values)
+function ArrayOfIndexes(first, last, shuffle) --first -> first number, last -> last number
+	--generates array items
+	array = {};
+	index_difference = first - 1;
+	for i = 1, last - index_difference do
+		array[i] = i + index_difference;
+	end;
+	--shuffles the array
+	if shuffle then
+		for i = 1, getn(array) do
+			for j = 1, 5 do
+				rand_index = random(1, getn(array));
+				temp = array[i];
+				array[i] = array[rand_index];
+				array[rand_index] = temp;
+			end;
+		end;
+	end;
+	return array;
+end;
+--shuffles arrays
+function ShuffledArray(array)
+	for i = 1, getn(array) do
+		for j = 1, 5 do
+			rand_index = random(1, getn(array));
+			temp = array[i];
+			array[i] = array[rand_index];
+			array[rand_index] = temp;
+		end;
+	end;
+	return array;
+end;
+--this local function is at the end of the file to locate other codes faster
+function Local_Hook_Init()
+	--to make random work (almost) as expected
+	randomseed(ExGetTickCount() * 1000);
+	--list of objects that appear on fixed position
+	terrain_objects = {75, 192, 6, 67, 11, 188, 189, 190};
+	--list of possible loot, categorized by level
+	loot_list =
+	{
+		--lvl 1 spells
+		{
+			--chaot
+			"STRT", "FRWA", "ZAPP", "LSST", "KBSH", "ORSH", "WLBR", "DRAT", "WNFL",
+			--vital
+			"SPFG", "TIWR", "MNDP", "SHCL", "DNFR", "TNSA", "BEWR", "LSHE", "GRSN",
+			--kinet
+			"AVSC", "LSUS", "TGSK", "LSDS", "STAT", "WLAR", "GBBR", "RVHL",
+			--synthet
+			"MCWO", "JRRG", "ENFL", "FAIL", "TWEN", "SMVL", "WLIL", "BRAB", "MNHP",
+			--pale
+			"OUS1", "OST1", "OST2", "OST3"
+		},
+		--lvl 2 spells
+		{
+			--chaot
+			"RKWL", "PRAT", "ERQA", "BRGR", "PLMR", "WHAS", "CRBL", "BASO", "RIOT", "KBGD", "ORGD", "WLMG", "KBEL", "BATT", "DSIG", "GEYS", "BLKD", "NWLF", "ASST",
+			--vital
+			"GRTN", "MAHO", "MYHO", "TANT", "SYMB", "TRAD", "SNRG", "MNTP", "SPBA", "UPGD", "THIF", "SPLK", "CMBN", "SACR", "BEWK", "TIWK", "MNTS", "ETTD", "HEAL", "CHNL", "CRIV", "SPWB", "BEHD", "BEQN", "TIQN", "TRSN", "SWSN",
+			--kinet
+			"LMMN", "AVMK", "AVAS", "BLNC", "FOGG", "HUNG", "BANN", "CLNP", "MALS", "AMNS", "CURS", "SCSK", "COPL", "SGHT", "GBIN", "SHSP", "CLSP", "WZSP", "WLBZ", "RVHG", "AWAK", "UNSM", "ENFR", "ICST", "FURY", "SEHL",
+			--synthet
+			"BGVL", "PTRS", "MCWU", "RECL", "BRRL", "PWTP", "NOIS", "BDEX", "ENRG", "DRGS", "FRGS", "PHWL", "BRMZ", "INCR", "PRFY", "SLRP", "SCBR", "IRRT", "RPST", "IRAB", "WLDG", "HOPR", "MDWP", "TRLB", "REDR", "WETX",
+			--pale
+			"SMFX", "FTCH", "BNSH", "PLSL", "OMWP", "OBLS", "GBNS", "GIFT", "ORFT", "OCLV", "OMSW", "PRWR"
+		},
+		--lvl 3 spells
+		{
+			--chaot
+			"DMRT", "BROT", "OREL", "GBAT", "WLLV", "FLIC", "VOLC", "CNBL", "ANHL", "RIFT", "LGST", "CTST", "SNOV", "WEAK", "MNBN", "GROG", "SHWL", "SLWL", "KBWR", "ORWR", "CLIG", "TREM", "FRST", "STRG", "SMOK", "IMML",
+			--vital
+			"ANTN", "CANV", "DRFR", "MNTX", "MTSC", "MOBE", "CAFG", "GIFG", "LASN", "HRCN", "SNCR", "BLSS", "GLDT", "DOMN", "ENWO", "STWO", "MOTI", "BHWR", "GRHE", "SNHG", "ENLH", "CLSN", "ASLT", "FRNT", "TWST", "MNDW", "ENVM", "HAST",
+			--kinet
+			"LMWA", "WLFC", "AVEL", "GBGN", "WRSP", "FDBK", "MDBL", "FRWN", "SHSK", "HOAM", "ERBN", "SPWR", "MGHT", "AREL", "EREL", "FREL", "WTEL", "SWHL", "DECN", "CHCM", "SPTR",
+			--synthet
+			"IRMC", "BRMC", "RFPT", "MCWY", "REPR", "IMMB", "DWND", "DISM", "PALN", "WLDT", "IRMZ", "LSPC", "ENAL", "SFGS", "DPGS", "DELS", "MDNS", "STAB", "FMFI", "WLBL", "SWMN", "CTMN", "MXHP", "TPLF", "LQRL", "ALST", "OVRL", "RBRT", "QKFX",
+			--pale
+			"OUD1", "OUD2", "OUE1", "OUE2", "OUS2", "OUS3", "SMTG", "ORPL", "OFLX", "OEXC", "PRGD", "PRBN", "OCRP", "LCWR", "LEWR", "LSWR", "ALNS", "PRWT"
+		},
+		--lvl 4 spells
+		{
+			--chaot
+			"VBAT", "MNBR", "MNBN", "WLIF", "OGKN", "CCLP", "ETCH", "FRBL", "RNST", "MNVR", "COMT",
+			--vital
+			"GRFG", "MTPT", "BHMO", "MNTH", "ANFR", "FTDS", "VTLY",
+			--kinet
+			"LMWD", "LMWK", "WLWD", "FLOD", "CNAR", "RDDG", "BLDG", "GRDG", "BUDG", "CRHG", "PSBR", "SHFR",
+			--synthet
+			"STMC", "STMZ", "EXIL", "CLON", "CLFR", "MLFI", "RZMN", "WKHR", "STTX",
+			--pale
+			"OUD3", "OUE3", "SMWB", "STSK", "PLWP", "ENBR", "LFGR", "GCWR", "GEWR", "GSWR"
+		}
+	};
+	--list of mobs, categorized by level
+	mob_list =
+	{
+		--lvl 1 mobs
+		{
+			"Stink Rat",
+			"Spitting Fingus",
+			"River Halo",
+			"Mech Worm",
+			"Pale Channaler"
+		},
+		--lvl 2 mobs
+		{
+			"Disease Rat",
+			"Wall of Air",
+			"Treant Sapling",
+			"Mini Hopper",
+			"Pale Avanger"
+		},
+		--lvl 3 mobs
+		{
+			"Aviak Scout",
+			"Bronze Abomination",
+			"Wall of Burning Rock",
+			"Bee Warrior",
+			"Pale Soldier"
+		},
+		--lvl 4 mobs
+		{
+			"Rock Wall",
+			"Grass Snake",
+			"Gibberling",
+			"Small Velos",
+			"Pale Healer"
+		},
+		--lvl 5 mobs
+		{
+			"Kobold Elder",
+			"Tick Worker",
+			"Aviak Assassin",
+			"Mech Wurm",
+			"Pale Scourge"
+		},
+		--lvl 6 mobs
+		{
+			"Orc Warrior",
+			"Great Treant",
+			"Gibberling Gang",
+			"Bronze Mechos",
+			"Pale Zealot"
+		},
+		--lvl 7 mobs
+		{
+			"Orc Elder",
+			"Mantis",
+			"Air Elemental",
+			"Cutter Man",
+			"Pale Invoker"
+		},
+		--lvl 8 mobs
+		{
+			"Vampire Bat",
+			"Giant Fingus",
+			"Warrior Spirit",
+			"Male Fighter",
+			"Pale Knight"
+		},
+		--lvl 9 mobs
+		{
+			"Wall of Inferno Flames",
+			"Evil Eye Mother",
+			"Lamia Warlock",
+			"Steel Mechozaurus",
+			"Pale Slayer"
+		},
+		--lvl 10 mobs
+		{
+			"Rat Master",
+			"Woodsman"
+		}
+	};
+	--living mobs on the map, empty by default
+	mob_objects = {};
+	--resource object list
+	resource_objects =
+	{
+		--root 1
+		325, 326, 327, 328, 329, 330, 335, 336, 337, 338,
+		--root 2
+		331, 332, 333, 339,
+		--root 3
+		334,
+		--ruby 1
+		343, 344, 345, 346, 347, 348, 349, 350, 351, 352,
+		--ruby 2
+		353, 354, 355, 356,
+		--ruby 3
+		357,
+		--flame 1
+		358, 359, 360, 361, 362, 363, 364, 365, 366, 367,
+		--flame 2
+		368, 369, 370, 371,
+		--flame 3
+		372
+	};
+	--possible positions where mobs and resources can spawn
+	position =
+	{
+		--starting area (index 1 is guardian mob, should always spawn)
+		{
+			{
+				["x"]=38,
+				["y"]=16,
+				["rot"]=0
+			},
+			{
+				["x"]=37,
+				["y"]=25,
+				["rot"]=0
+			},
+			{
+				["x"]=43,
+				["y"]=23,
+				["rot"]=180
+			},
+			{
+				["x"]=43,
+				["y"]=19,
+				["rot"]=180
+			},
+			{
+				["x"]=33,
+				["y"]=20,
+				["rot"]=270
+			},
+			{
+				["x"]=34,
+				["y"]=23,
+				["rot"]=270
+			}
+		},
+		--vital (or left) side
+		{
+			{
+				["x"]=25,
+				["y"]=34,
+				["rot"]=270
+			},
+			{
+				["x"]=28,
+				["y"]=36,
+				["rot"]=0
+			},
+			{
+				["x"]=27,
+				["y"]=42,
+				["rot"]=270
+			},
+			{
+				["x"]=31,
+				["y"]=39,
+				["rot"]=180
+			},
+			{
+				["x"]=34,
+				["y"]=46,
+				["rot"]=180
+			}
+		},
+		--kinet (or right) side
+		{
+			{
+				["x"]=50,
+				["y"]=30,
+				["rot"]=0
+			},
+			{
+				["x"]=52,
+				["y"]=26,
+				["rot"]=180
+			},
+			{
+				["x"]=54,
+				["y"]=36,
+				["rot"]=180
+			},
+			{
+				["x"]=48,
+				["y"]=38,
+				["rot"]=270
+			},
+			{
+				["x"]=52,
+				["y"]=48,
+				["rot"]=0
+			}
+		},
+		--final area (final index is guardian mob, should always spawn)
+		{
+			{
+				["x"]=40,
+				["y"]=53,
+				["rot"]=0
+			},
+			{
+				["x"]=43,
+				["y"]=53,
+				["rot"]=0
+			},
+			{
+				["x"]=42,
+				["y"]=45,
+				["rot"]=90
+			},
+			{
+				["x"]=45,
+				["y"]=58,
+				["rot"]=180
+			},
+			{
+				["x"]=38,
+				["y"]=61,
+				["rot"]=270
+			},
+			{
+				["x"]=41,
+				["y"]=65,
+				["rot"]=0
+			}
+		}
+	};
+	--list of special objects
+	special_objects = ShuffledArray(
+	{
+		--specializations
+		255, 267, 268, 269, 270, 271, 272, 273, 274,
+		275, 276, 277, 278, 279, 280, 281, 282, 283,
+		284, 285, 286, 287, 288, 289, 290, 291, 292,
+		293, 294, 295, 296, 297, 298, 299, 300, --[[301,]]
+		302, 303, 304, 305, 306, 307, 308, 309, 310,
+		311, 312, 313, 314, 315, 316, 317, 318, 319,
+		320, 321, 322, 323, 324,
+		--artifacts
+		390, 391, --[[392,]] 393, 394, 395, 396, 397, 398,
+		399, 400, 401, 402, 403, 404, 405, 406, 407,
+		408, 409, 410
+	});
+	special_object_count = 0;
+	--list of shops
+	shop_objects =
+	{
+		373, --starting deck items
+		411, --bats and rats
+		412, --aviaks
+		413, --healing
+		414, --walls and defense
+		415, --power and (mostly) offensive enhancements
+		417, --orcs and kobolds
+		418, --offensive spells and enhancements (it either damages an enemy monster/hero (sorcery) or it places an enhancement on any creature/hero that damages an enemy creature/hero)
+		419 --spirits
+	};
+	--other variables
+	hero_shape_list = {"BlackMainHero-1", "BlueMainHero-1", "GreenMainHero-1", "RedMainHero-1"};
+	bg_theme_list = {"ad_Black01", "ad_Blue01", "ad_Green01", "ad_Red01"};
+end;
