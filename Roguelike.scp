@@ -153,16 +153,15 @@ function RemoveObjects()
 		ExTakeObject(shop_objects[i]);
 	end;
 	--mobs
-	living_mobs = getn(mob_objects);
-	if living_mobs > 0 then
-		--prevents hero from getting loot if mobs are killed by the code
-		auto_kill = true;
-		for i = 1, living_mobs do
+	--prevents hero from getting loot if mobs are killed by the code
+	auto_kill = true;
+	for i = 1, getn(mob_objects) do
+		if ExIsAlive( mob_objects[i] ) then
 			ExKillHero(mob_objects[i]);
 		end;
-		auto_kill = false;
-		mob_objects = {};
 	end;
+	auto_kill = false;
+	mob_objects = {};
 end;
 --places objects (mobs, buildings, terrain) according to specific random rolls
 function PlaceObjects()
