@@ -123,7 +123,7 @@ function Init_Constants()
 
   BOSS_MOB_POSITION = { ["x"] = 41, ["y"] = 65, ["rot"] = 0, };
 
-  MOBS_MUST_BE_KILLED = false; -- whether or not every single enemy has to be killed in order to proceed
+  MOBS_MUST_BE_KILLED = false; -- whether every single enemy has to be killed in order to proceed
   STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not work correctly if you change spell recurrence)
   STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
   MAX_LOOT_DISPLAYED = 5; -- loot dialogue box displays this amount of loot at a time
@@ -131,6 +131,8 @@ function Init_Constants()
   MAX_RESOURCES_PER_AREA = 3; -- the max amount of resources that can spawn in an area (the map has multiple areas)
   MIN_MOBS_PER_AREA = 1; -- the min amount of mobs that can spawn in an area (the map has multiple areas)
   MAX_MOBS_PER_AREA = 3; -- the max amount of mobs that can spawn in an area (the map has multiple areas)
+  IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
+  IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
 
   ID_EXIT_TELEPORTER = 39;
 
@@ -197,6 +199,7 @@ function Init_Variables()
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
+  boss_level = 0; -- the level of the current boss
 end;
 
 -- Etherlords 2 local function.
@@ -236,6 +239,12 @@ end;
 
 -- Called when the exit teleporter is used.
 function OnPreUse_Teleporter()
+  if IS_VICTORY_ENABLED then
+    local max_enemy_level = getn( MOB_TABLE );
+    if boss_level == max_enemy_level then
+      ExAddCommandWin();
+    end;
+  end;
   if MOBS_MUST_BE_KILLED then
     if ExGetMobCount() == 1 then
       ResetMap();
@@ -285,6 +294,14 @@ end;
 function Local_Hook_OnHeroKill( hero_id )
   if hero_id ~= g_MainHeroId then
     OnHeroKill_Enemy( hero_id );
+  end;
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
+  -- terminates the mission if the main hero loses a fight
+  if IS_HARD_DEFEAT_ENABLED and winner_id ~= g_MainHeroId then
+    ExWinLoseMission( 0 );
   end;
 end;
 
@@ -488,6 +505,9 @@ function PlaceMob( position, is_boss )
   end;
   if mob_level > getn( MOB_TABLE ) then
     mob_level = getn( MOB_TABLE );
+  end;
+  if is_boss then
+    boss_level = mob_level;
   end;
   -- places the mob at the specified location and sets its rotation mirror
   local new_mob_table = MOB_TABLE[ mob_level ];
