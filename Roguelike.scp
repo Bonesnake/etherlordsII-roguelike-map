@@ -199,9 +199,10 @@ end;
 
 -- Initializes variables.
 function Init_Variables()
+  onstep_tick_count = 0; -- in-game tick count recorded in the OnStep hook, see the OnBattleFinishing hook for more info
   is_main_hero_ready = false; -- used before giving control to the player
   rotation_count = 0; -- rotation count increases each time the teleporter is used
-  placed_resource_count = 0;
+  placed_resource_count = 0; -- the amount of resources that have been placed
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
@@ -241,6 +242,7 @@ function Local_Hook_OnStep()
     OnStep_Setup();
     is_main_hero_ready = true;
   end;
+  onstep_tick_count = ExGetTickCount();
 end;
 
 -- Called when the exit teleporter is used.
@@ -309,8 +311,16 @@ end;
 function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
   -- terminates the mission if the main hero loses a fight
   if IS_HARD_DEFEAT_ENABLED and winner_id ~= g_MainHeroId then
-    ExWinLoseMission( 0 );
+  	-- this condition is needed to end the game only upon losing a fight and not also when backing off before actually starting it
+  	-- the reason for why this works is because the OnStep hook is only called outside of combat, while the tick count increases in combat too
+  	-- also because OnBattleFinishing is called before OnStep, giving higher tick count than the one recorded in the OnStep hook only after properly finishing a battle
+  	-- I've tried to look for other solutions, but this was the only one that worked
+  	local current_tick_count = ExGetTickCount();
+  	if current_tick_count > onstep_tick_count then
+      ExWinLoseMission( 0 );
+    end;
   end;
+  return nil;
 end;
 
 -- Changes main hero's shape and spells.
