@@ -9,8 +9,22 @@
 
 -- Initializes "constants".
 function Init_Constants()
+  IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
+  IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
+  IS_TELEPORTER_ALWAYS_ACTIVE = true; -- whether the teleporter can be activated without killing every single enemy
+
+  STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not match based on spell recurrence)
+  STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
+  MAX_LOOT_DISPLAYED = 5; -- loot dialogue box displays this amount of loot at a time
+
+  MIN_RESOURCES_PER_AREA = 2; -- the min amount of resources that can spawn in an area (the map has multiple areas)
+  MAX_RESOURCES_PER_AREA = 3; -- the max amount of resources that can spawn in an area (the map has multiple areas)
+  MIN_MOBS_PER_AREA = 1; -- the min amount of mobs that can spawn in an area (the map has multiple areas)
+  MAX_MOBS_PER_AREA = 3; -- the max amount of mobs that can spawn in an area (the map has multiple areas)
+
   HERO_SHAPES = { "BlackMainHero-1", "BlueMainHero-1", "GreenMainHero-1", "RedMainHero-1", }; -- these are the shapes that the hero can spawn as
   BG_THEMES = { "ad_Black01", "ad_Blue01", "ad_Green01", "ad_Red01", }; -- table of background musics
+
   SPELL_TABLE =
   {
     { -- lvl 1 spells
@@ -123,17 +137,6 @@ function Init_Constants()
 
   BOSS_MOB_POSITION = { ["x"] = 41, ["y"] = 65, ["rot"] = 0, };
 
-  MOBS_MUST_BE_KILLED = false; -- whether every single enemy has to be killed in order to proceed
-  STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not work correctly if you change spell recurrence)
-  STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
-  MAX_LOOT_DISPLAYED = 5; -- loot dialogue box displays this amount of loot at a time
-  MIN_RESOURCES_PER_AREA = 2; -- the min amount of resources that can spawn in an area (the map has multiple areas)
-  MAX_RESOURCES_PER_AREA = 3; -- the max amount of resources that can spawn in an area (the map has multiple areas)
-  MIN_MOBS_PER_AREA = 1; -- the min amount of mobs that can spawn in an area (the map has multiple areas)
-  MAX_MOBS_PER_AREA = 3; -- the max amount of mobs that can spawn in an area (the map has multiple areas)
-  IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
-  IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
-
   ID_EXIT_TELEPORTER = 39;
 
   ID_STARTING_AREA_LEFT_BLOCKADE = 6;
@@ -239,21 +242,23 @@ end;
 
 -- Called when the exit teleporter is used.
 function OnPreUse_Teleporter()
+  -- ends the game if victory conditions are met
   if IS_VICTORY_ENABLED then
     local max_enemy_level = getn( MOB_TABLE );
     if boss_level == max_enemy_level then
       ExAddCommandWin();
     end;
   end;
-  if MOBS_MUST_BE_KILLED then
+  -- progresses the map
+  if IS_TELEPORTER_ALWAYS_ACTIVE then
+    ProgressMap();
+  else
     if ExGetMobCount() == 1 then
-      ResetMap();
+      ProgressMap();
     else
       ExMessageBoxDialog( "The teleporter does not seem to be working. Eliminate nearby mobs and try again.", 1, 1 );
       return nil;
     end;
-  else
-    ResetMap();
   end;
   return 1;
 end;
@@ -321,7 +326,7 @@ function SetUpMainHero()
 end;
 
 -- Starts a new "rotation".
-function ResetMap()
+function ProgressMap()
   rotation_count = rotation_count + 1;
   ExCameraInstantScrollToPos( 38, 11 );
   ExHideExploration();
@@ -453,6 +458,9 @@ function PlaceResources()
       local position_count = getn( area );
       local position_indexes = GetRandomIndexes( 1, position_count );
       local new_resource_count = random( MIN_RESOURCES_PER_AREA, MAX_RESOURCES_PER_AREA );
+      if new_resource_count > position_count then
+        new_resource_count = position_count;
+      end;
       for j = 1, new_resource_count do
         local position_index = position_indexes[ j ];
         local position = area[ position_index ];
@@ -471,6 +479,9 @@ function PlaceMobs()
       local position_count = getn( area );
       local position_indexes = GetRandomIndexes( 1, position_count );
       local new_mob_count = random( MIN_MOBS_PER_AREA, MAX_MOBS_PER_AREA );
+      if new_mob_count > position_count then
+        new_mob_count = position_count;
+      end;
       for j = 1, new_mob_count do
         local position_index = position_indexes[ j ];
         local position = area[ position_index ];
