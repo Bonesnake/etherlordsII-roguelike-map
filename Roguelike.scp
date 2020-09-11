@@ -458,6 +458,9 @@ end;
 function PlaceShop()
   local shop_count = getn( SHOPS );
   local shop_index = mod( rotation_count, shop_count );
+  if shop_index == 0 then
+    shop_index = shop_count;
+  end;
   local shop = SHOPS[ shop_index ];
   ExPlaceObject( shop, 41, 40 );
 end;
@@ -510,6 +513,9 @@ function PlaceResource( position )
   placed_resource_count = placed_resource_count + 1;
   local resource_count = getn( RESOURCES );
   local resource_index = mod( placed_resource_count, resource_count );
+  if resource_index == 0 then
+    resource_index = resource_count;
+  end;
   local resource = RESOURCES[ resource_index ];
   ExPlaceObject( resource, position.x, position.y );
 end;
