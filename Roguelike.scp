@@ -11,7 +11,6 @@
 function Init_Constants()
   IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
   IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
-  IS_TELEPORTER_ALWAYS_ACTIVE = true; -- whether the teleporter can be activated without killing every single enemy
 
   STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not match based on spell recurrence)
   STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
@@ -207,6 +206,7 @@ function Init_Variables()
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
   boss_level = 0; -- the level of the current boss
+  is_winning = false; -- whether the conditions for victory are met
 end;
 
 -- Etherlords 2 local function.
@@ -251,20 +251,12 @@ function OnPreUse_Teleporter()
   if IS_VICTORY_ENABLED then
     local max_enemy_level = getn( MOB_TABLE );
     if boss_level == max_enemy_level then
-      ExAddCommandWin();
-    end;
-  end;
-  -- progresses the map
-  if IS_TELEPORTER_ALWAYS_ACTIVE then
-    ProgressMap();
-  else
-    if ExGetMobCount() == 1 then
-      ProgressMap();
-    else
-      ExMessageBoxDialog( "The teleporter does not seem to be working. Eliminate nearby mobs and try again.", 1, 1 );
+      is_winning = true;
+      ExMessageBoxOkCancel( "You have defeated the final boss. Are you ready to end the game?", nil );
       return nil;
     end;
   end;
+  ProgressMap();
   return 1;
 end;
 
@@ -274,6 +266,17 @@ function Local_Hook_OnPreUse( object_id, hero_id )
     return OnPreUse_Teleporter();
   end;
   return 1;
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnCloseMessageBox( callback )
+  if is_winning then
+  	if callback == "OK" then
+      ExWinLoseMission( 1 );
+    else
+      is_winning = false;
+    end;
+  end;
 end;
 
 -- Called when an enemy mob is killed.
