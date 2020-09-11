@@ -56,6 +56,7 @@ function Init_Constants()
       "OUD3", "OUE3", "SMWB", "STSK", "PLWP", "ENBR", "LFGR", "GCWR", "GEWR", "GSWR", -- pale
     }
   };
+
   MOB_TABLE = -- these must match their map names
   {
     { "Stink Rat", "Spitting Fingus", "River Halo", "Mech Worm", "Pale Channaler", }, -- lvl 1 mobs
@@ -69,6 +70,7 @@ function Init_Constants()
     { "Wall of Inferno Flames", "Evil Eye Mother", "Lamia Warlock", "Steel Mechozaurus", "Pale Slayer", }, -- lvl 9 mobs
     { "Rat Master", "Woodsman", }, -- lvl 10 mobs
   };
+
   RESOURCE_POSITION_TABLE = -- this is where resources can spawn
   {
     { -- starting area
@@ -102,6 +104,7 @@ function Init_Constants()
       { ["x"] = 45, ["y"] = 55, },
     },
   };
+
   MOB_POSITION_TABLE = -- this is where mobs can spawn
   {
     { -- starting area
