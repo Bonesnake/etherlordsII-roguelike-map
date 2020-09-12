@@ -21,7 +21,7 @@ The following is in the map's description:
 - and of course, most of these are selected randomly before each rotation, making sure that each attempt is unique
 
 ## How To Install
-First, clone the repository or download an archived snapshot. There's an option for these at the top of the page.
+First, clone the repository or [click here](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip) to download the latest snapshot.
 
 Then, locate the root directory of Etherlords II and extract the **Maps** folder and its content there. There should be 6 files named *Roguelike.something* inside *Etherlords II\Maps\Custom* if done correctly. The *README.md* and *.gitattributes* files are not needed.
 
@@ -29,6 +29,7 @@ To start the map, launch the game, go into *Single* -> *Mission* -> *New*, selec
 ***Note: if you have saves from an earlier version, you will most likely not be able to load them in the newest version.***
 
 ## Links
+[Download link](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip)\
 [Etherlords II on Steam](https://store.steampowered.com/app/270790/Etherlords_II/)\
 [Etherlords II on GOG](https://www.gog.com/game/etherlords_2)\
 [The map's old version](https://www.dropbox.com/s/mc0thl0iaxn1lei/Roguelike_E2.zip?dl=0)\
