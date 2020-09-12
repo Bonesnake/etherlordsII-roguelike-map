@@ -25,7 +25,7 @@ First, clone the repository or download an archived snapshot. There's an option 
 
 Then, locate the root directory of Etherlords II and extract the **Maps** folder and its content there. There should be 6 files named *Roguelike.something* inside *Etherlords II\Maps\Custom* if done correctly. The *README.md* and *.gitattributes* files are not needed.
 
-To start the map, launch the game, go into *Single* -> *Mission* -> *New*, select the map and the difficulty, then hit the play button.
+To start the map, launch the game, go into *Single* -> *Mission* -> *New*, select the map and the difficulty, then hit the play button.\
 ***Note: if you have saves from an earlier version, you will most likely not be able to load them in the newest version.***
 
 ## Links
