@@ -345,6 +345,8 @@ end;
 -- Starts a new "rotation".
 function ProgressMap()
   rotation_count = rotation_count + 1;
+  local bg_theme = GetRandomElement( BG_THEMES );
+  ExStartBackgroundTheme( bg_theme );
   ExCameraInstantScrollToPos( 38, 11 );
   ExHideExploration();
   RemoveObjects();
