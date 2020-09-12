@@ -30,9 +30,9 @@ To start the map, launch the game, go into *Single* -> *Mission* -> *New*, selec
 
 ## Links
 [Download link](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip)\
+[Old version](https://www.dropbox.com/s/mc0thl0iaxn1lei/Roguelike_E2.zip?dl=0)\
 [Etherlords II on Steam](https://store.steampowered.com/app/270790/Etherlords_II/)\
 [Etherlords II on GOG](https://www.gog.com/game/etherlords_2)\
-[The map's old version](https://www.dropbox.com/s/mc0thl0iaxn1lei/Roguelike_E2.zip?dl=0)\
 [Map Editor Reference by Ether Planes](http://etherplanes.net/index.php?&lang=en&section=MapEditing&page=Reference)
 
 *Sadly, I cannot provide links for the map editor because those I've found on the internet require a CD instalment. The GOG version of the game has the map editor, only the Steam version lacks it, but if you manage to get your hands on the editor, you can use it with the Steam version too.*
