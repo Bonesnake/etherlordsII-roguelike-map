@@ -84,7 +84,7 @@ function Init_Constants()
       { ["x"] = 26, ["y"] = 30, },
       { ["x"] = 25, ["y"] = 35, },
       { ["x"] = 32, ["y"] = 39, },
-      { ["x"] = 28, ["y"] = 45, },
+      { ["x"] = 32, ["y"] = 43, },
       { ["x"] = 30, ["y"] = 47, },
     },
     { -- kinet/right side
@@ -117,14 +117,14 @@ function Init_Constants()
     { -- vital/left side
       { ["x"] = 25, ["y"] = 34, ["rot"] = 270, },
       { ["x"] = 28, ["y"] = 36, ["rot"] = 0, },
-      { ["x"] = 27, ["y"] = 42, ["rot"] = 270, },
+      { ["x"] = 28, ["y"] = 45, ["rot"] = 0, },
       { ["x"] = 31, ["y"] = 39, ["rot"] = 180, },
       { ["x"] = 34, ["y"] = 46, ["rot"] = 180, }
     },
     { -- kinet/right side
       { ["x"] = 50, ["y"] = 30, ["rot"] = 0, },
       { ["x"] = 52, ["y"] = 26, ["rot"] = 180, },
-      { ["x"] = 54, ["y"] = 36, ["rot"] = 180, },
+      { ["x"] = 47, ["y"] = 46, ["rot"] = 270, },
       { ["x"] = 48, ["y"] = 38, ["rot"] = 270, },
       { ["x"] = 52, ["y"] = 48, ["rot"] = 0, },
     },
@@ -201,6 +201,7 @@ function Init_Variables()
   onstep_tick_count = 0; -- in-game tick count recorded in the OnStep hook, see the OnBattleFinishing hook for more info
   is_main_hero_ready = false; -- used before giving control to the player
   rotation_count = 0; -- rotation count increases each time the teleporter is used
+  placed_special_object_count = 0; -- the amount of special objects that have been placed
   placed_resource_count = 0; -- the amount of resources that have been placed
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
@@ -271,7 +272,7 @@ end;
 -- Etherlords 2 local function.
 function Local_Hook_OnCloseMessageBox( callback )
   if is_winning then
-  	if callback == "OK" then
+    if callback == "OK" then
       ExWinLoseMission( 1 );
     else
       is_winning = false;
@@ -314,12 +315,12 @@ end;
 function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
   -- terminates the mission if the main hero loses a fight
   if IS_HARD_DEFEAT_ENABLED and winner_id ~= g_MainHeroId then
-  	-- this condition is needed to end the game only upon losing a fight and not also when backing off before actually starting it
-  	-- the reason for why this works is because the OnStep hook is only called outside of combat, while the tick count increases in combat too
-  	-- also because OnBattleFinishing is called before OnStep, giving higher tick count than the one recorded in the OnStep hook only after properly finishing a battle
-  	-- I've tried to look for other solutions, but this was the only one that worked
-  	local current_tick_count = ExGetTickCount();
-  	if current_tick_count > onstep_tick_count then
+    -- this condition is needed to end the game only upon losing a fight and not also when backing off before actually starting it
+    -- the reason for why this works is because the OnStep hook is only called outside of combat, while the tick count increases in combat too
+    -- also because OnBattleFinishing is called before OnStep, giving higher tick count than the one recorded in the OnStep hook only after properly finishing a battle
+    -- I've tried to look for other solutions, but this was the only one that worked
+    local current_tick_count = ExGetTickCount();
+    if current_tick_count > onstep_tick_count then
       ExWinLoseMission( 0 );
     end;
   end;
@@ -443,18 +444,13 @@ end;
 
 -- Places special objects.
 function PlaceSpecialObjects()
-  local special_object_count = getn( SPECIAL_OBJECTS );
-  local placed_special_object_count = rotation_count * 2 - 2;
-  if placed_special_object_count < special_object_count then
-    placed_special_object_count = placed_special_object_count + 1;
-    local special_object = SPECIAL_OBJECTS[ placed_special_object_count ];
-    ExPlaceObject( special_object, 38, 68 );
-    if placed_special_object_count < special_object_count then
-      placed_special_object_count = placed_special_object_count + 1;
-      special_object = SPECIAL_OBJECTS[ placed_special_object_count ];
-      ExPlaceObject( special_object, 43, 68 );
-    end;
+  if side == "left" then
+    PlaceSpecialObject( { ["x"] = 26, ["y"] = 43 } );
+  else
+    PlaceSpecialObject( { ["x"] = 54, ["y"] = 36 } );
   end;
+  PlaceSpecialObject( { ["x"] = 38, ["y"] = 68 } );
+  PlaceSpecialObject( { ["x"] = 43, ["y"] = 68 } );
 end;
 
 -- Places a shop.
@@ -509,6 +505,16 @@ function PlaceMobs()
     end;
   end;
   PlaceMob( BOSS_MOB_POSITION, true );
+end;
+
+-- Places a special object at the given position.
+function PlaceSpecialObject( position )
+  local special_object_count = getn( SPECIAL_OBJECTS );
+  if placed_special_object_count < special_object_count then
+    placed_special_object_count = placed_special_object_count + 1;
+    local special_object = SPECIAL_OBJECTS[ placed_special_object_count ];
+    ExPlaceObject( special_object, position.x, position.y );
+  end;
 end;
 
 -- Places a resource at the given position.
