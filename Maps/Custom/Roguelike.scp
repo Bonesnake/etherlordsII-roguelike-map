@@ -220,9 +220,11 @@ end;
 
 -- Etherlords 2 local function.
 function Local_Hook_GameStarted()
-  -- starts a random background music
-  local bg_theme = GetRandomElement( BG_THEMES );
-  ExStartBackgroundTheme( bg_theme );
+  -- starts a random background music after loading a saved game
+  if is_main_hero_ready then
+    local bg_theme = GetRandomElement( BG_THEMES );
+    ExStartBackgroundTheme( bg_theme );
+  end;
 end;
 
 -- Sets up main hero and plays the intro scene.
