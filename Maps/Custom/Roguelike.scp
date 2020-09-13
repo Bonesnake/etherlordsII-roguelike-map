@@ -248,7 +248,7 @@ end;
 
 -- Called when the exit teleporter is used.
 function OnPreUse_Teleporter()
-  -- ends the game if victory conditions are met
+  -- tries to end the game if victory conditions are met
   if IS_VICTORY_ENABLED then
     local max_enemy_level = getn( MOB_TABLE );
     if boss_level == max_enemy_level then
@@ -271,6 +271,7 @@ end;
 
 -- Etherlords 2 local function.
 function Local_Hook_OnCloseMessageBox( callback )
+  -- ends the game if the OK button is clicked on the victory popup
   if is_winning then
     if callback == "OK" then
       ExWinLoseMission( 1 );
