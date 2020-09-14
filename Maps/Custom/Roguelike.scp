@@ -189,10 +189,15 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     412, -- aviaks
     413, -- healing
     414, -- walls and defense
-    415, -- strengthening enhancements
+    415, -- strengthening enchantments
     417, -- orcs and kobolds
-    418, -- offensive sorcery spells and enhancements
+    418, -- offensive sorcery spells and enchantments
     419, -- spirits
+    485, -- pale enchantments and sorcery spells
+    484, -- pale summons
+    483, -- disenchanting
+    482, -- ether control
+    487, -- exceptional summons
   });
 end;
 
