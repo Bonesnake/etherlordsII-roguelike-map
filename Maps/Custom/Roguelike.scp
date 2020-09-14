@@ -140,6 +140,7 @@ function Init_Constants()
   BOSS_MOB_POSITION = { ["x"] = 41, ["y"] = 65, ["rot"] = 0, };
 
   ID_EXIT_TELEPORTER = 39;
+  ID_SHOP_SIGN = 489;
 
   ID_STARTING_AREA_LEFT_BLOCKADE = 6;
   ID_STARTING_AREA_RIGHT_BLOCKADE = 11;
@@ -184,20 +185,20 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
   });
   SHOPS = Shuffle(
   {
-    373, -- starting deck items
-    411, -- bats and rats
-    412, -- aviaks
-    413, -- healing
-    414, -- walls and defense
-    415, -- strengthening enchantments
-    417, -- orcs and kobolds
-    418, -- offensive sorcery spells and enchantments
-    419, -- spirits
-    485, -- pale enchantments and sorcery spells
-    484, -- pale summons
-    483, -- disenchanting
-    482, -- ether control
-    487, -- exceptional summons
+    { ["id"] = 373, ["desc"] = "Starting Spells", },
+    { ["id"] = 411, ["desc"] = "Bats and Rats", },
+    { ["id"] = 412, ["desc"] = "Aviaks", },
+    { ["id"] = 413, ["desc"] = "Healing", },
+    { ["id"] = 414, ["desc"] = "Walls and Defense", },
+    { ["id"] = 415, ["desc"] = "Strengthening Enchantments", },
+    { ["id"] = 417, ["desc"] = "Orcs and Kobolds", },
+    { ["id"] = 418, ["desc"] = "Offensive Sorcery Spells and Enchantments", },
+    { ["id"] = 419, ["desc"] = "Spirits", },
+    { ["id"] = 485, ["desc"] = "Pale Enchantments and Sorcery Spells", },
+    { ["id"] = 484, ["desc"] = "Pale Summons", },
+    { ["id"] = 483, ["desc"] = "Disenchanting", },
+    { ["id"] = 482, ["desc"] = "Ether Control", },
+    { ["id"] = 487, ["desc"] = "Exceptional Summons", },
   });
 end;
 
@@ -211,6 +212,7 @@ function Init_Variables()
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
+  current_shop_description = ""; -- the description of the shop currently placed on the map
   boss_level = 0; -- the level of the current boss
   is_winning = false; -- whether the conditions for victory are met
 end;
@@ -268,10 +270,20 @@ function OnPreUse_Teleporter()
   return 1;
 end;
 
+-- Called when interacting with the shop sign.
+function OnPreUse_Sign()
+  -- tells the player the contents of the shop
+  local description = "Shop of "..current_shop_description;
+  ExMessageBoxStandardAction( description );
+  return nil;
+end;
+
 -- Etherlords 2 local function.
 function Local_Hook_OnPreUse( object_id, hero_id )
   if object_id == ID_EXIT_TELEPORTER then
     return OnPreUse_Teleporter();
+  elseif object_id == ID_SHOP_SIGN then
+    return OnPreUse_Sign();
   end;
   return 1;
 end;
@@ -382,7 +394,7 @@ end;
 function PlaceObjects()
   PlaceTerrainObjects();
   PlaceSpecialObjects();
-  PlaceShop();
+  PlaceShops();
   PlaceResources();
   PlaceMobs();
 end;
@@ -416,7 +428,7 @@ end;
 -- Removes placed shops.
 function RemoveShops()
   for i = 1, getn( SHOPS ) do
-    ExTakeObject( SHOPS[ i ] );
+    ExTakeObject( SHOPS[ i ].id );
   end;
 end;
 
@@ -463,15 +475,16 @@ function PlaceSpecialObjects()
   PlaceSpecialObject( { ["x"] = 43, ["y"] = 68 } );
 end;
 
--- Places a shop.
-function PlaceShop()
+-- Places shops.
+function PlaceShops()
   local shop_count = getn( SHOPS );
   local shop_index = mod( rotation_count, shop_count );
   if shop_index == 0 then
     shop_index = shop_count;
   end;
   local shop = SHOPS[ shop_index ];
-  ExPlaceObject( shop, 41, 40 );
+  ExPlaceObject( shop.id, 41, 40 );
+  current_shop_description = shop.desc;
 end;
 
 -- Places resources.
