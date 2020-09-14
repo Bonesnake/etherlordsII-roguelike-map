@@ -156,7 +156,7 @@ end;
 
 -- Initializes "dynamic 'constants'".
 function Init_Dynamic_Constants() -- "dynamic" because they are modified by the code upon initialization
-  RESOURCES = Shuffle(
+  ID_TABLE_RESOURCES = Shuffle(
   {
     325, 326, 327, 328, 329, 330, 335, 336, 337, 338, -- root 1
     331, 332, 333, 339, -- root 2
@@ -168,7 +168,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     368, 369, 370, 371, -- flame 2
     372, -- flame 3
   });
-  SPECIAL_OBJECTS = Shuffle(
+  ID_TABLE_SPECIAL_OBJECTS = Shuffle(
   {
     -- specializations (not included because of crashes/other problems: 267, 279, 301, 304)
     255,      268, 269, 270, 271, 272, 273, 274,
@@ -413,15 +413,15 @@ end;
 
 -- Removes placed resources.
 function RemoveResources()
-  for i = 1, getn( RESOURCES ) do
-    ExTakeObject( RESOURCES[ i ] );
+  for i = 1, getn( ID_TABLE_RESOURCES ) do
+    ExTakeObject( ID_TABLE_RESOURCES[ i ] );
   end;
 end;
 
 -- Removes placed special objects.
 function RemoveSpecialObjects()
-  for i = 1, getn( SPECIAL_OBJECTS ) do
-    ExTakeObject( SPECIAL_OBJECTS[ i ] );
+  for i = 1, getn( ID_TABLE_SPECIAL_OBJECTS ) do
+    ExTakeObject( ID_TABLE_SPECIAL_OBJECTS[ i ] );
   end;
 end;
 
@@ -532,24 +532,24 @@ end;
 
 -- Places a special object at the given position.
 function PlaceSpecialObject( position )
-  local special_object_count = getn( SPECIAL_OBJECTS );
+  local special_object_count = getn( ID_TABLE_SPECIAL_OBJECTS );
   if placed_special_object_count < special_object_count then
     placed_special_object_count = placed_special_object_count + 1;
-    local special_object = SPECIAL_OBJECTS[ placed_special_object_count ];
-    ExPlaceObject( special_object, position.x, position.y );
+    local id_special_object = ID_TABLE_SPECIAL_OBJECTS[ placed_special_object_count ];
+    ExPlaceObject( id_special_object, position.x, position.y );
   end;
 end;
 
 -- Places a resource at the given position.
 function PlaceResource( position )
   placed_resource_count = placed_resource_count + 1;
-  local resource_count = getn( RESOURCES );
+  local resource_count = getn( ID_TABLE_RESOURCES );
   local resource_index = mod( placed_resource_count, resource_count );
   if resource_index == 0 then
     resource_index = resource_count;
   end;
-  local resource = RESOURCES[ resource_index ];
-  ExPlaceObject( resource, position.x, position.y );
+  local id_resource = ID_TABLE_RESOURCES[ resource_index ];
+  ExPlaceObject( id_resource, position.x, position.y );
 end;
 
 -- Places a mob at the given position.
