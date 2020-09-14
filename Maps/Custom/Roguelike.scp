@@ -185,7 +185,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
   });
   SHOPS = Shuffle(
   {
-    { ["id"] = 373, ["desc"] = "Starting Spells", },
+    { ["id"] = 373, ["desc"] = "Basic Spells", },
     { ["id"] = 411, ["desc"] = "Bats and Rats", },
     { ["id"] = 412, ["desc"] = "Aviaks", },
     { ["id"] = 413, ["desc"] = "Healing", },
