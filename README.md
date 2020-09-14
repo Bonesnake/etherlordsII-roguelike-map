@@ -20,7 +20,7 @@ The following is in the map's description:
 - No fixed loot from enemies, they always drop something different
 - And of course, most of these are selected before each rotation or upon starting a new game, making sure that every attempt is unique
 
-## How To Install
+## Installation
 First, clone the repository or [click here](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip) to download the latest snapshot.
 
 Then, locate the root directory of Etherlords II and extract the **Maps** folder and its content there. There should be 6 files named *Roguelike.something* inside *Etherlords II\Maps\Custom* if done correctly. The *README.md* and *.gitattributes* files are not needed.
