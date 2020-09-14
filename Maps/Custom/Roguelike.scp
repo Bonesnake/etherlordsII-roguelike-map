@@ -14,7 +14,7 @@ function Init_Constants()
 
   STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not match based on spell recurrence)
   STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
-  MAX_LOOT_DISPLAYED = 5; -- loot dialogue box displays this amount of loot at a time
+  MAX_LOOT_DISPLAYED = 7; -- loot dialogue box displays this amount of loot at a time (setting it to a value higher than 7 may cause it to overflow)
 
   MIN_RESOURCES_PER_AREA = 2; -- the min amount of resources that can spawn in an area (the map has multiple areas)
   MAX_RESOURCES_PER_AREA = 3; -- the max amount of resources that can spawn in an area (the map has multiple areas)
