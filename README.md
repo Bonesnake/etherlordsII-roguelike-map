@@ -8,17 +8,17 @@ The following is in the map's description:
 > An attempt at creating a map with procedural map generation and random loot system. Every game is different, allowing you to try different character builds against different types of enemies and giving you the chance to try spells and combinations you never thought would be useful. The further you go, the harder it gets, but there are also more and better rewards. Good luck and have fun!
 
 ## Features
-- unique main hero: random appearance and starting spells
-- changing background music, to less likely get bored of it
-- scattered resources and enemies
-- boss mob after each rotation
-- one shrine or artifact at around halfway and two after defeating a boss
-- one specialized shop before each boss, focused around a theme, like rats or healing
-- obstacles in the form of an enemy that may prove challenging or terrain objects that may open up or lock areas
-- no faction limitations, allowing you to try unique spell combinations
-- random loot from enemies
-- progressively stronger enemies and better loot from them
-- and of course, most of these are selected randomly before each rotation, making sure that every attempt is unique
+- Unique main hero: random starting spells and appearance
+- Changing background music, to less likely get bored of it
+- Randomly scattered resources and enemies
+- Random boss mob at the end of each rotation
+- Randomly selected shrines and artifacts while exploring and after bosses
+- One of many possible shops before each boss, focused around a theme, like rats or healing
+- Terrain objects that may open up or lock areas
+- No faction limitations, allowing you to try unique spell combinations
+- Progressively stronger enemies and better loot from them
+- No fixed loot from enemies, they always drop something different
+- And of course, most of these are selected before each rotation or upon starting a new game, making sure that every attempt is unique
 
 ## How To Install
 First, clone the repository or [click here](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip) to download the latest snapshot.
