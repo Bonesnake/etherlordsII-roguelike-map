@@ -342,6 +342,8 @@ function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
     local current_tick_count = ExGetTickCount();
     if current_tick_count > onstep_tick_count then
       ExWinLoseMission( 0 );
+    else
+      ExAddCommandCameraToObject( g_MainHeroId );
     end;
   end;
   return nil;
