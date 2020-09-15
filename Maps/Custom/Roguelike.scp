@@ -58,12 +58,12 @@ function Init_Constants()
 
   MOB_TABLE = -- these must match their map names
   {
-    { "Stink Rat", "Spitting Fingus", "River Halo", "Mech Worm", "Pale Channaler", }, -- lvl 1 mobs
-    { "Disease Rat", "Wall of Air", "Treant Sapling", "Mini Hopper", "Pale Avanger", }, -- lvl 2 mobs
-    { "Aviak Scout", "Bronze Abomination", "Wall of Burning Rock", "Bee Warrior", "Pale Soldier", }, -- lvl 3 mobs
-    { "Rock Wall", "Grass Snake", "Gibberling", "Small Velos", "Pale Healer", }, -- lvl 4 mobs
-    { "Kobold Elder", "Tick Worker", "Aviak Assassin", "Mech Wurm", "Pale Scourge", }, -- lvl 5 mobs
-    { "Orc Warrior", "Great Treant", "Gibberling Gang", "Bronze Mechos", "Pale Zealot", }, -- lvl 6 mobs
+    { "Stink Rat", "Spitting Fingus", "River Halo", "Mech Worm", "Pale Channaler", "Kobold Shaman", "Tick Warrior", "Wall of Illusion" }, -- lvl 1 mobs
+    { "Disease Rat", "Wall of Air", "Treant Sapling", "Mini Hopper", "Pale Avanger", "Orc Shaman", "Pale Spellweaver" }, -- lvl 2 mobs
+    { "Aviak Scout", "Bronze Abomination", "Wall of Burning Rock", "Bee Warrior", "Pale Soldier", "Shaman Spirit", "Bat" }, -- lvl 3 mobs
+    { "Rock Wall", "Grass Snake", "Gibberling", "Small Velos", "Pale Healer", "Wall of Magma" }, -- lvl 4 mobs
+    { "Kobold Elder", "Tick Worker", "Aviak Assassin", "Mech Wurm", "Pale Scourge", "Magic Hornet" }, -- lvl 5 mobs
+    { "Orc Warrior", "Great Treant", "Gibberling Gang", "Bronze Mechos", "Pale Zealot", "Cleric Spirit" }, -- lvl 6 mobs
     { "Orc Elder", "Mantis", "Air Elemental", "Cutter Man", "Pale Invoker", }, -- lvl 7 mobs
     { "Vampire Bat", "Giant Fingus", "Warrior Spirit", "Male Fighter", "Pale Knight", }, -- lvl 8 mobs
     { "Wall of Inferno Flames", "Evil Eye Mother", "Lamia Warlock", "Steel Mechozaurus", "Pale Slayer", }, -- lvl 9 mobs
