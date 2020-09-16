@@ -10,7 +10,6 @@
 -- Initializes "constants".
 function Init_Constants()
   IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
-  IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
 
   STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not match based on spell recurrence)
   STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
@@ -336,18 +335,9 @@ end;
 
 -- Etherlords 2 local function.
 function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
-  -- terminates the mission if the main hero loses a fight
-  if IS_HARD_DEFEAT_ENABLED and winner_id ~= g_MainHeroId then
-    -- this condition is needed to end the game only upon losing a fight and not also when backing off before actually starting it
-    -- the reason for why this works is because the OnStep hook is only called outside of combat, while the tick count increases in combat too
-    -- also because OnBattleFinishing is called before OnStep, giving higher tick count than the one recorded in the OnStep hook only after properly finishing a battle
-    -- I've tried to look for other solutions, but this was the only one that worked
-    local current_tick_count = ExGetTickCount();
-    if current_tick_count > onstep_tick_count then
-      ExWinLoseMission( 0 );
-    else
-      ExAddCommandCameraToObject( g_MainHeroId );
-    end;
+  -- smooth camera effect when declining combat requests
+  if winner_id ~= g_MainHeroId then
+    ExAddCommandCameraToObject( g_MainHeroId );
   end;
   return nil;
 end;
