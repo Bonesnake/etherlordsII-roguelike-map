@@ -20,6 +20,9 @@ function Init_Constants()
   MIN_MOBS_PER_AREA = 1; -- the min amount of mobs that can spawn in an area (the map has multiple areas)
   MAX_MOBS_PER_AREA = 3; -- the max amount of mobs that can spawn in an area (the map has multiple areas)
 
+  ARTEFACT_RECHARGER_BASE_CHANCE = 5; -- the base chance for the artefact recharger to appear
+  ARTEFACT_RECHARGER_CHANCE_INCREASE = 32; -- the artefact recharger will have this amount more chance to appear each rotation after it fails to do so
+
   HERO_SHAPES = { "BlackMainHero-1", "BlueMainHero-1", "GreenMainHero-1", "RedMainHero-1", }; -- these are the shapes that the hero can spawn as
   BG_THEMES = { "ad_Black01", "ad_Blue01", "ad_Green01", "ad_Red01", }; -- table of background musics
 
@@ -100,7 +103,7 @@ function Init_Constants()
       { ["x"] = 38, ["y"] = 51, },
       { ["x"] = 46, ["y"] = 58, },
       { ["x"] = 39, ["y"] = 55, },
-      { ["x"] = 44, ["y"] = 64, },
+      { ["x"] = 44, ["y"] = 60, },
       { ["x"] = 38, ["y"] = 64, },
       { ["x"] = 45, ["y"] = 55, },
     },
@@ -143,6 +146,7 @@ function Init_Constants()
 
   ID_EXIT_TELEPORTER = 39;
   ID_SHOP_SIGN = 489;
+  ID_ARTEFACT_RECHARGER = 492;
 
   ID_STARTING_AREA_LEFT_BLOCKADE = 6;
   ID_STARTING_AREA_RIGHT_BLOCKADE = 11;
@@ -211,6 +215,7 @@ function Init_Variables()
   rotation_count = 0; -- rotation count increases each time the teleporter is used
   placed_special_object_count = 0; -- the amount of special objects that have been placed
   placed_resource_count = 0; -- the amount of resources that have been placed
+  artefact_recharger_chance = ARTEFACT_RECHARGER_BASE_CHANCE; -- the chance for the artefact recharger to appear (it appears if it reaches 100)
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
@@ -418,6 +423,7 @@ function RemoveSpecialObjects()
   for i = 1, getn( ID_TABLE_SPECIAL_OBJECTS ) do
     ExTakeObject( ID_TABLE_SPECIAL_OBJECTS[ i ] );
   end;
+  ExTakeObject( ID_ARTEFACT_RECHARGER );
 end;
 
 -- Removes placed shops.
@@ -468,6 +474,12 @@ function PlaceSpecialObjects()
   end;
   PlaceSpecialObject( { ["x"] = 38, ["y"] = 68 } );
   PlaceSpecialObject( { ["x"] = 43, ["y"] = 68 } );
+  if random( 0, 99 ) < artefact_recharger_chance then
+    ExPlaceObject( ID_ARTEFACT_RECHARGER, 44, 63 );
+    artefact_recharger_chance = ARTEFACT_RECHARGER_BASE_CHANCE;
+  else
+    artefact_recharger_chance = artefact_recharger_chance + ARTEFACT_RECHARGER_CHANCE_INCREASE;
+  end;
 end;
 
 -- Places shops.
