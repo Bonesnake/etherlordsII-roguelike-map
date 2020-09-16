@@ -644,12 +644,10 @@ end;
 -- Shuffles and returns the given table.
 function Shuffle( table )
   for i = 1, getn( table ) do
-    for j = 1, 5 do
-      rand_index = random( 1, getn( table ) );
-      temp = table[ i ];
-      table[i] = table[ rand_index ];
-      table[ rand_index ] = temp;
-    end;
+    rand_index = random( 1, getn( table ) );
+    temp = table[ i ];
+    table[i] = table[ rand_index ];
+    table[ rand_index ] = temp;
   end;
   return table;
 end;
@@ -684,12 +682,12 @@ function CHook_BeginMyTurn( turn )
     end;
     if turn > 5 then
       ExAddSpellToHand( exMe, "ZAPP" );
-    end;
-    if turn > 10 then
-      ExAddSpellToHand( exMe, "ZAPP" );
-    end;
-    if mod( turn, 10 ) == 0 then
-      ExAddSpellToHand( exMe, "CLNP" );
+      if turn > 10 then
+        ExAddSpellToHand( exMe, "ZAPP" );
+      end;
+      if mod( turn, 10 ) == 0 then
+        ExAddSpellToHand( exMe, "CLNP" );
+      end;
     end;
   end;
 end;
