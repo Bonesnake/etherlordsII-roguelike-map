@@ -1,0 +1,36 @@
+-- Etherlords 2 local combat function.
+function CHook_Init()
+  safeguard_enabled = 0; -- safeguard applies to the first few fights and is supposed to prevent softlock situations automatically (bools don't seem to work with combat scripts, hence the number type)
+end;
+
+-- Etherlords 2 local combat function.
+function CHook_BeginMyTurn( turn )
+  -- decides whether safeguard should be enabled
+  if turn == 1 then
+    local player_level = ExGetPlayerOriginalLevel( exMe );
+    local enemy_level = ExGetPlayerOriginalLevel( exEnemy );
+    if player_level == 1 and enemy_level == 1 then
+      safeguard_enabled = 1;
+      player_health_max = ExGetPlayerHealth( exMe );
+      ExMessageToScreen( "You will have some assistance until you get started!", 0, 200, 0 );
+    else
+      safeguard_enabled = 0;
+    end;
+  end;
+  -- activates safeguard if needed
+  if safeguard_enabled == 1 then
+    local player_health = ExGetPlayerHealth( exMe );
+    if player_health < 5 and mod( turn, 2 ) == 0 then
+      ExCastSpell( exMe, "GRHE" );
+    end;
+    if turn > 5 then
+      ExAddSpellToHand( exMe, "ZAPP" );
+      if turn > 10 then
+        ExAddSpellToHand( exMe, "ZAPP" );
+      end;
+      if mod( turn, 10 ) == 0 then
+        ExAddSpellToHand( exMe, "CLNP" );
+      end;
+    end;
+  end;
+end;
