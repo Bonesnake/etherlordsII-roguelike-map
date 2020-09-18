@@ -593,12 +593,12 @@ end;
 function GetLootCount( mob_level )
   local bonus_loot_count = 0;
   -- each loop has a chance to increase loot count
-  for i = 1, 5 do
-    local scope = ( 20 * mob_level ) - ( ( i - 1 ) * 80 );
+  for i = 1, 7 do
+    local scope = ( 25 * mob_level ) - ( ( i - 1 ) * 50 );
     if scope >= 100 then
       scope = 95;
     end;
-    if random( 1, 100 ) < scope then
+    if random( 0, 99 ) < scope then
       bonus_loot_count = bonus_loot_count + 1;
     end;
   end;
@@ -611,8 +611,11 @@ function GetLootLevel( mob_level )
   local loot_level = 1;
   -- each loop has a chance to increase loot level
   for i = 1, 3 do
-    local scope = ( 20 * ( mob_level - 1 ) ) - ( ( i - 1 ) * 80 );
-    if random( 1, 100 ) < scope then
+    local scope = ( 25 * ( mob_level - 1 ) ) - ( ( i - 1 ) * 100 );
+    if scope >= 100 then
+      scope = 95;
+    end;
+    if random( 0, 99 ) < scope then
       loot_level = loot_level + 1;
     end;
   end;
