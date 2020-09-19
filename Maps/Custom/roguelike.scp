@@ -205,6 +205,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     { ["id"] = 483, ["desc"] = "Disenchanting", },
     { ["id"] = 482, ["desc"] = "Ether Control", },
     { ["id"] = 487, ["desc"] = "Exceptional Summons", },
+    { ["id"] = 493, ["desc"] = "Flying Monsters", },
   });
 end;
 
