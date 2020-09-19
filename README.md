@@ -12,18 +12,19 @@ The following is in the map's description:
 - Changing background music, to less likely get bored of it
 - Randomly scattered resources and enemies
 - Random boss mob at the end of each rotation
-- Randomly selected shrines and artifacts while exploring and after bosses
+- Randomly selected shrines and artefacts while exploring and after bosses
+- Artefact recharger every few rotations to encourage artefact usage but still make them situational
 - One of many possible shops before each boss, focused around a theme, like rats or healing
 - Terrain objects that may open up or lock areas
 - No faction limitations, allowing you to try unique spell combinations
 - Progressively stronger enemies and better loot from them
 - No fixed loot from enemies, they always drop something different
-- And of course, most of these are selected before each rotation or upon starting a new game, making sure that every attempt is unique
+- And of course, most of these are determined before each rotation or upon starting a new game, making sure that every attempt is unique
 
 ## Installation
 First, clone the repository or [click here](https://github.com/Bonesnake/etherlordsII-roguelike-map/archive/master.zip) to download the latest snapshot.
 
-Then, locate the root directory of Etherlords II and extract the **Maps** folder and its content there. There should be 6 files named *Roguelike.something* inside *Etherlords II\Maps\Custom* if done correctly. The *README.md* and *.gitattributes* files are not needed.
+Then, locate the root directory of Etherlords II and copy or extract the **Maps** folder and its content there. There should be 7 files with *roguelike* prefix inside *Etherlords II\Maps\Custom* if done correctly. The *README.md* and *.gitattributes* files are not needed.
 
 To start the map, launch the game, go into *Single* -> *Mission* -> *New*, select the map and the difficulty, then hit the play button.\
 ***Note: if you have saves from an earlier version, you will most likely not be able to load them in the newest version.***
