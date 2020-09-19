@@ -10,16 +10,18 @@
 -- Initializes "constants".
 function Init_Constants()
   IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
-  IS_HARD_DEFEAT_ENABLED = true; -- if enabled, terminates the mission upon losing a fight, otherwise, nothing happens
 
   STARTING_SPELL_COUNT = 16; -- the number of spells the main hero starts with (may not match based on spell recurrence)
   STARTING_SPELL_RECURRENCE = 2; -- the number of times a starting spell will be duplicated (ie: if set to 2, the main hero will have 8 different spells, 2 of each)
-  MAX_LOOT_DISPLAYED = 5; -- loot dialogue box displays this amount of loot at a time
+  MAX_LOOT_DISPLAYED = 7; -- loot dialogue box displays this amount of loot at a time (setting it to a value higher than 7 may cause it to overflow)
 
   MIN_RESOURCES_PER_AREA = 2; -- the min amount of resources that can spawn in an area (the map has multiple areas)
   MAX_RESOURCES_PER_AREA = 3; -- the max amount of resources that can spawn in an area (the map has multiple areas)
   MIN_MOBS_PER_AREA = 1; -- the min amount of mobs that can spawn in an area (the map has multiple areas)
   MAX_MOBS_PER_AREA = 3; -- the max amount of mobs that can spawn in an area (the map has multiple areas)
+
+  ARTEFACT_RECHARGER_BASE_CHANCE = 5; -- the base chance for the artefact recharger to appear
+  ARTEFACT_RECHARGER_CHANCE_INCREASE = 32; -- the artefact recharger will have this amount more chance to appear each rotation after it fails to do so
 
   HERO_SHAPES = { "BlackMainHero-1", "BlueMainHero-1", "GreenMainHero-1", "RedMainHero-1", }; -- these are the shapes that the hero can spawn as
   BG_THEMES = { "ad_Black01", "ad_Blue01", "ad_Green01", "ad_Red01", }; -- table of background musics
@@ -58,16 +60,19 @@ function Init_Constants()
 
   MOB_TABLE = -- these must match their map names
   {
-    { "Stink Rat", "Spitting Fingus", "River Halo", "Mech Worm", "Pale Channaler", }, -- lvl 1 mobs
-    { "Disease Rat", "Wall of Air", "Treant Sapling", "Mini Hopper", "Pale Avanger", }, -- lvl 2 mobs
-    { "Aviak Scout", "Bronze Abomination", "Wall of Burning Rock", "Bee Warrior", "Pale Soldier", }, -- lvl 3 mobs
-    { "Rock Wall", "Grass Snake", "Gibberling", "Small Velos", "Pale Healer", }, -- lvl 4 mobs
-    { "Kobold Elder", "Tick Worker", "Aviak Assassin", "Mech Wurm", "Pale Scourge", }, -- lvl 5 mobs
-    { "Orc Warrior", "Great Treant", "Gibberling Gang", "Bronze Mechos", "Pale Zealot", }, -- lvl 6 mobs
-    { "Orc Elder", "Mantis", "Air Elemental", "Cutter Man", "Pale Invoker", }, -- lvl 7 mobs
-    { "Vampire Bat", "Giant Fingus", "Warrior Spirit", "Male Fighter", "Pale Knight", }, -- lvl 8 mobs
-    { "Wall of Inferno Flames", "Evil Eye Mother", "Lamia Warlock", "Steel Mechozaurus", "Pale Slayer", }, -- lvl 9 mobs
-    { "Rat Master", "Woodsman", }, -- lvl 10 mobs
+    { "m11 - Bee Warrior", "m11 - Fingus Spitting", "m11 - Treant Sapling", "m12 - Fingus Spitting", "m21 - Bat", "m21 - River Halo", "m21 - Stink Rat", "m31 - Aviak Scout", "m31 - Bronze Abomination", "m31 - Treant Sapling", "m41 - Bronze Abomination", "m41 - Worm", "m51 - River Halo", "m51 - Sorcerer1", "m51 - Worm", }, -- lvl 1 mobs
+    { "m11 - Fingus Carnivorous", "m11 - Hopper Mini", "m11 - Mech Worm", "m12 - Fingus Carnivorous", "m12 - Hornet Magic", "m12 - Mech Wurm", "m12 - Tick Worker", "m12 - Velos Small", "m13 - Kobold Shaman", "m21 - Aviak Scout", "m21 - Gibberling", "m21 - Orc Shaman", "m31 - Pteros", "m31 - Sorcerer1", "m31 - Wall of Air", "m41 - Pteros", "m41 - Sorcerer1_2", "m41 - Velos Small", "m41 - Worm Medium", "m51 - Aviak Scout", "m51 - Bronze Abomination", "m51 - Fighter1", "m51 - Gibberling", "m51 - Wall Of Air", }, -- lvl 2 mobs
+    { "m11 - Wall of Illusion", "m21 - Aviak Assassin", "m21 - Warrior Spirit", "m22 - Disease Rat", "m22 - Kobold Guard", "m22 - Magic Hornet", "m22 - Mini Hopper", "m22 - Wall of Breeze", "m31 - Fighter1", "m31 - Wall of Breeze", "m31 - Warlock1", "m32 - Aviak Assassin", "m32 - Orc Shaman", "m32 - Wall of Breeze", "m41 - Fighter1", "m41 - Sorcerer1", "m41 - Wall of Illusion", "m42 - Disease Rat", "m42 - Gibberling", "m51 - Aviak Assassin", "m51 - Hopper", "m51 - Treant", "m51 - Wall of Illusion", "m51 - Warlock1_1", }, -- lvl 3 mobs
+    { "m13 - Kobold Elder", "m22 - Big Velos", "m22 - Orc Guard", "m22 - Sea Halo", "m22 - Wall of Magma", "m23 - Disease Rat", "m23 - Tick Warrior", "m32 - Orc Guard 1", "m32 - Orc Guard 2", "m32 - Swamp Snake", "m33 - Aviak Marksman", "m42 - Bat", "m42 - Swamp Snake", "m42 - Tick Warrior", "m42 - Treant", "m51 - Devourer1", "m51 - Wall of Magma", "m51 - Warlock1_2", "m51 - Warrior Spirit", }, -- lvl 4 mobs
+    { "m12 - Fingus Giant", "m12 - Hopper", "m13 - Bee Hive Guard", "m13 - Hopper Maxi", "m13 - Mechos Bronze", "m13 - Orc Guard", "m13 - Outer Fighter 2", "m13 - Vampire Bat", "m22 - Giant Bat", "m22 - Tick Queen", "m23 - Iron Abomination", "m23 - Plague Rat", "m32 - Phantasmal Wall", "m32 - Sea Halo", "m33 - Aviak Elder", "m33 - Gibberling Gang", "m42 - Gargantuan Fingus", "m42 - Lake Snake", "m43 - Bronze Mechozaurus", "m43 - Dragon", "m43 - Enchanter1", "m43 - Fighter1", "m43 - Iron Abomination", "m43 - Wall of Magma", "m43 - Wyrm", "m52 - Aviak Elder", "m53 - Shaman Spirit", }, -- lvl 5 mobs
+    { "m12 - Phantasmal Wall", "m12 - Snake Grass", "m13 - Aviak Marksman", "m13 - Gibberling Instigator", "m13 - Mechos Iron", "m13 - Mechos Steel", "m13 - Snake Tree", "m13 - Spirit Cleric", "m13 - Treant Great", "m14 - Mech Wyrm", "m22 - Gibberling Instigator", "m23 - Cleric Spirit", "m23 - Doom Rat", "m23 - Iron Mechos", "m23 - Wall of Daggers", "m32 - Orc Warrior 1", "m32 - Orc Warrior 2", "m33 - Air Elemental", "m33 - Cleric Spirit", "m33 - Shaman Spirit", "m33 - Sorcerer2", "m33 - Wall of Daggers", "m33 - Wall of Force", "m42 - Evil Eye", "m42 - Mantis", "m43 - Air Elemental", "m43 - Devourer1", "m43 - Enchanter2", "m43 - Fighter2_1", "m43 - Gibberling Gang", "m43 - Mystic Hornet", "m43 - Reinforced Pteros (general)", "m43 - Silicon Wall", "m43 - Swamp Halo", "m43 - Warlock2", "m44 - Sea Halo", "m52 - Bee Queen", "m52 - Tick Queen", "m53 - Gibberling Gang", "m53 - Orc Warrior", "m53 - Plague Rat", "m53 - Wall of Lava", }, -- lvl 6 mobs
+    { "m13 - Bee Hive Boss", "m13 - Cutter Man", "m13 - Mechozaurus Iron", "m13 - Spirit Shaman", "m23 - Lamia Monk", "m23 - Shaman Spirit", "m23 - Water Elemental", "m33 - Bee Queen", "m33 - Enchanter2", "m33 - Wall of Lava", "m33 - Warlock3", "m43 - Female Fighter", "m43 - Fighter2_2", "m43 - Fighter2_3", "m43 - Sorceror2", "m43 - Wall of Distortion", "m44 - Female Fighter", "m44 - Lamia Monk", "m52 - Evil Eye Warrior", "m52 - Mantis Scribe", "m53 - Orc Elder", "m53 - Water Elemental", }, -- lvl 7 mobs
+    { "m13 - Mechos Steel Boss", "m13 - Mechozaurus Steel", "m13 - Ogre Gray", "m13 - Orc Warrior", "m14 - Evil Eye Warrior", "m14 - Mechos Steel", "m23 - Orc Elder", "m23 - Pale Reaper", "m23 - Shadow Wolf", "m24 - Cutter Man", "m24 - Gray Ogre", "m33 - Devourer2", "m33 - Enchanter3", "m33 - Ogre King", "m33 - Sorcerer3", "m33 - Water Elemental", "m33 - Wizard Spirit", "m34 - Mother Bee", "m34 - Rock Wall", "m43 - Devourer2", "m43 - Enchanter3 (in dungeon)", "m43 - Male Fighter", "m43 - Sorceror3", "m43 - Warlock3", "m52 - Earth Elemental", "m52 - Mantis Scribe 2", "m52 - Orc Elder", "m52 - Steel Abomination", "m53 - Fire Elemental", "m53 - Gray Ogre", "m53 - Shadow Wolf", "m53 - Wall of Inferno Flames", }, -- lvl 8 mobs
+    { "m13 - Spirit Wizard", "m14 - Mechozaurus Steel", "m23 - Earth Elemental", "m23 - Fire Elemental", "m24 - Lamia Warlord", "m24 - Lamia Warrior", "m33 - Fighter3", "m33 - Lamia Warlord", "m34 - Enchanter3", "m34 - Orc Elder", "m34 - Wall of Wind", "m43 - Fighter3", "m44 - Fighter3", "m44 - Wall of Inferno Flames", "m52 - Evil Eye Mother", "m52 - Mantis Patriarch", "m53 - Ogre King", "m53 - Orc Elder 2", "m54 - Sawer Man", }, -- lvl 9 mobs
+    { "m14 - Wall of Blades", "m24 - Evil Eye Mother", "m24 - Ogre King", "m24 - Sawer Man", "m33 - Lamia Warlock", "m34 - Fighter3", "m43 - Devourer3 (Boss)", "m44 - Razor Man", "m54 - Cyclop", "m54 - Lamia Warlock", "m54 - Outer 2", }, -- lvl 10 mobs
+    { "m14 - Razor Man", "m24 - Cyclop", "m24 - Lamia Warlock", "m24 - Red Dragon", "m34 - Black Dragon", "m34 - Devourer3", "m34 - Razor Man", "m44 - Devourer3", "m54 - Blue Dragon", "m54 - Outer 1", "m54 - Razor Man", }, -- lvl 11 mobs
+    { "m34 - Walking Horror", "m44 - Blue Dragon", "m54 - Konung", "m54 - Outer 3", "m54 - Outer 4", }, -- lvl 12 mobs
+    { "m14 - Walking Horror", }, -- lvl 13 mobs
   };
 
   RESOURCE_POSITION_TABLE = -- this is where resources can spawn
@@ -98,7 +103,7 @@ function Init_Constants()
       { ["x"] = 38, ["y"] = 51, },
       { ["x"] = 46, ["y"] = 58, },
       { ["x"] = 39, ["y"] = 55, },
-      { ["x"] = 44, ["y"] = 64, },
+      { ["x"] = 44, ["y"] = 60, },
       { ["x"] = 38, ["y"] = 64, },
       { ["x"] = 45, ["y"] = 55, },
     },
@@ -123,7 +128,7 @@ function Init_Constants()
     },
     { -- kinet/right side
       { ["x"] = 50, ["y"] = 30, ["rot"] = 0, },
-      { ["x"] = 52, ["y"] = 26, ["rot"] = 180, },
+      { ["x"] = 52, ["y"] = 27, ["rot"] = 180, },
       { ["x"] = 47, ["y"] = 46, ["rot"] = 270, },
       { ["x"] = 48, ["y"] = 38, ["rot"] = 270, },
       { ["x"] = 52, ["y"] = 48, ["rot"] = 0, },
@@ -140,6 +145,8 @@ function Init_Constants()
   BOSS_MOB_POSITION = { ["x"] = 41, ["y"] = 65, ["rot"] = 0, };
 
   ID_EXIT_TELEPORTER = 39;
+  ID_SHOP_SIGN = 489;
+  ID_ARTEFACT_RECHARGER = 492;
 
   ID_STARTING_AREA_LEFT_BLOCKADE = 6;
   ID_STARTING_AREA_RIGHT_BLOCKADE = 11;
@@ -155,7 +162,7 @@ end;
 
 -- Initializes "dynamic 'constants'".
 function Init_Dynamic_Constants() -- "dynamic" because they are modified by the code upon initialization
-  RESOURCES = Shuffle(
+  ID_TABLE_RESOURCES = Shuffle(
   {
     325, 326, 327, 328, 329, 330, 335, 336, 337, 338, -- root 1
     331, 332, 333, 339, -- root 2
@@ -167,7 +174,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     368, 369, 370, 371, -- flame 2
     372, -- flame 3
   });
-  SPECIAL_OBJECTS = Shuffle(
+  ID_TABLE_SPECIAL_OBJECTS = Shuffle(
   {
     -- specializations (not included because of crashes/other problems: 267, 279, 301, 304)
     255,      268, 269, 270, 271, 272, 273, 274,
@@ -184,15 +191,21 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
   });
   SHOPS = Shuffle(
   {
-    373, -- starting deck items
-    411, -- bats and rats
-    412, -- aviaks
-    413, -- healing
-    414, -- walls and defense
-    415, -- strengthening enhancements
-    417, -- orcs and kobolds
-    418, -- offensive sorcery spells and enhancements
-    419, -- spirits
+    { ["id"] = 373, ["desc"] = "Basic Spells", },
+    { ["id"] = 411, ["desc"] = "Bats and Rats", },
+    { ["id"] = 412, ["desc"] = "Aviaks", },
+    { ["id"] = 413, ["desc"] = "Healing", },
+    { ["id"] = 414, ["desc"] = "Walls and Defense", },
+    { ["id"] = 415, ["desc"] = "Strengthening Enchantments", },
+    { ["id"] = 417, ["desc"] = "Orcs and Kobolds", },
+    { ["id"] = 418, ["desc"] = "Offensive Sorcery Spells and Enchantments", },
+    { ["id"] = 419, ["desc"] = "Spirits", },
+    { ["id"] = 485, ["desc"] = "Pale Enchantments and Sorcery Spells", },
+    { ["id"] = 484, ["desc"] = "Pale Summons", },
+    { ["id"] = 483, ["desc"] = "Disenchanting", },
+    { ["id"] = 482, ["desc"] = "Ether Control", },
+    { ["id"] = 487, ["desc"] = "Exceptional Summons", },
+    { ["id"] = 493, ["desc"] = "Flying Monsters", },
   });
 end;
 
@@ -203,9 +216,11 @@ function Init_Variables()
   rotation_count = 0; -- rotation count increases each time the teleporter is used
   placed_special_object_count = 0; -- the amount of special objects that have been placed
   placed_resource_count = 0; -- the amount of resources that have been placed
+  artefact_recharger_chance = ARTEFACT_RECHARGER_BASE_CHANCE; -- the chance for the artefact recharger to appear (it appears if it reaches 100)
   is_mob_cleanup = false; -- used to clean up mobs when using the teleporter
   side = ""; -- the side that is open for exploration (left or right)
   mobs = {}; -- current mobs on the map
+  current_shop_description = ""; -- the description of the shop currently placed on the map
   boss_level = 0; -- the level of the current boss
   is_winning = false; -- whether the conditions for victory are met
 end;
@@ -263,10 +278,20 @@ function OnPreUse_Teleporter()
   return 1;
 end;
 
+-- Called when interacting with the shop sign.
+function OnPreUse_Sign()
+  -- tells the player the contents of the shop
+  local description = "Shop of "..current_shop_description;
+  ExMessageBoxStandardAction( description );
+  return nil;
+end;
+
 -- Etherlords 2 local function.
 function Local_Hook_OnPreUse( object_id, hero_id )
   if object_id == ID_EXIT_TELEPORTER then
     return OnPreUse_Teleporter();
+  elseif object_id == ID_SHOP_SIGN then
+    return OnPreUse_Sign();
   end;
   return 1;
 end;
@@ -316,16 +341,9 @@ end;
 
 -- Etherlords 2 local function.
 function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
-  -- terminates the mission if the main hero loses a fight
-  if IS_HARD_DEFEAT_ENABLED and winner_id ~= g_MainHeroId then
-    -- this condition is needed to end the game only upon losing a fight and not also when backing off before actually starting it
-    -- the reason for why this works is because the OnStep hook is only called outside of combat, while the tick count increases in combat too
-    -- also because OnBattleFinishing is called before OnStep, giving higher tick count than the one recorded in the OnStep hook only after properly finishing a battle
-    -- I've tried to look for other solutions, but this was the only one that worked
-    local current_tick_count = ExGetTickCount();
-    if current_tick_count > onstep_tick_count then
-      ExWinLoseMission( 0 );
-    end;
+  -- smooth camera effect when declining combat requests
+  if winner_id ~= g_MainHeroId then
+    ExAddCommandCameraToObject( g_MainHeroId );
   end;
   return nil;
 end;
@@ -377,7 +395,7 @@ end;
 function PlaceObjects()
   PlaceTerrainObjects();
   PlaceSpecialObjects();
-  PlaceShop();
+  PlaceShops();
   PlaceResources();
   PlaceMobs();
 end;
@@ -396,22 +414,23 @@ end;
 
 -- Removes placed resources.
 function RemoveResources()
-  for i = 1, getn( RESOURCES ) do
-    ExTakeObject( RESOURCES[ i ] );
+  for i = 1, getn( ID_TABLE_RESOURCES ) do
+    ExTakeObject( ID_TABLE_RESOURCES[ i ] );
   end;
 end;
 
 -- Removes placed special objects.
 function RemoveSpecialObjects()
-  for i = 1, getn( SPECIAL_OBJECTS ) do
-    ExTakeObject( SPECIAL_OBJECTS[ i ] );
+  for i = 1, getn( ID_TABLE_SPECIAL_OBJECTS ) do
+    ExTakeObject( ID_TABLE_SPECIAL_OBJECTS[ i ] );
   end;
+  ExTakeObject( ID_ARTEFACT_RECHARGER );
 end;
 
 -- Removes placed shops.
 function RemoveShops()
   for i = 1, getn( SHOPS ) do
-    ExTakeObject( SHOPS[ i ] );
+    ExTakeObject( SHOPS[ i ].id );
   end;
 end;
 
@@ -456,17 +475,24 @@ function PlaceSpecialObjects()
   end;
   PlaceSpecialObject( { ["x"] = 38, ["y"] = 68 } );
   PlaceSpecialObject( { ["x"] = 43, ["y"] = 68 } );
+  if random( 0, 99 ) < artefact_recharger_chance then
+    ExPlaceObject( ID_ARTEFACT_RECHARGER, 44, 63 );
+    artefact_recharger_chance = ARTEFACT_RECHARGER_BASE_CHANCE;
+  else
+    artefact_recharger_chance = artefact_recharger_chance + ARTEFACT_RECHARGER_CHANCE_INCREASE;
+  end;
 end;
 
--- Places a shop.
-function PlaceShop()
+-- Places shops.
+function PlaceShops()
   local shop_count = getn( SHOPS );
   local shop_index = mod( rotation_count, shop_count );
   if shop_index == 0 then
     shop_index = shop_count;
   end;
   local shop = SHOPS[ shop_index ];
-  ExPlaceObject( shop, 41, 40 );
+  ExPlaceObject( shop.id, 41, 40 );
+  current_shop_description = shop.desc;
 end;
 
 -- Places resources.
@@ -514,24 +540,24 @@ end;
 
 -- Places a special object at the given position.
 function PlaceSpecialObject( position )
-  local special_object_count = getn( SPECIAL_OBJECTS );
+  local special_object_count = getn( ID_TABLE_SPECIAL_OBJECTS );
   if placed_special_object_count < special_object_count then
     placed_special_object_count = placed_special_object_count + 1;
-    local special_object = SPECIAL_OBJECTS[ placed_special_object_count ];
-    ExPlaceObject( special_object, position.x, position.y );
+    local id_special_object = ID_TABLE_SPECIAL_OBJECTS[ placed_special_object_count ];
+    ExPlaceObject( id_special_object, position.x, position.y );
   end;
 end;
 
 -- Places a resource at the given position.
 function PlaceResource( position )
   placed_resource_count = placed_resource_count + 1;
-  local resource_count = getn( RESOURCES );
+  local resource_count = getn( ID_TABLE_RESOURCES );
   local resource_index = mod( placed_resource_count, resource_count );
   if resource_index == 0 then
     resource_index = resource_count;
   end;
-  local resource = RESOURCES[ resource_index ];
-  ExPlaceObject( resource, position.x, position.y );
+  local id_resource = ID_TABLE_RESOURCES[ resource_index ];
+  ExPlaceObject( id_resource, position.x, position.y );
 end;
 
 -- Places a mob at the given position.
@@ -568,12 +594,12 @@ end;
 function GetLootCount( mob_level )
   local bonus_loot_count = 0;
   -- each loop has a chance to increase loot count
-  for i = 1, 5 do
-    local scope = ( 20 * mob_level ) - ( ( i - 1 ) * 80 );
-    if scope >= 100 then
+  for i = 1, 7 do
+    local scope = ( 25 * mob_level ) - ( ( i - 1 ) * 50 );
+    if scope > 95 then
       scope = 95;
     end;
-    if random( 1, 100 ) < scope then
+    if random( 0, 99 ) < scope then
       bonus_loot_count = bonus_loot_count + 1;
     end;
   end;
@@ -586,8 +612,11 @@ function GetLootLevel( mob_level )
   local loot_level = 1;
   -- each loop has a chance to increase loot level
   for i = 1, 3 do
-    local scope = ( 20 * ( mob_level - 1 ) ) - ( ( i - 1 ) * 80 );
-    if random( 1, 100 ) < scope then
+    local scope = ( 25 * ( mob_level - 1 ) ) - ( ( i - 1 ) * 100 );
+    if scope > 95 then
+      scope = 95;
+    end;
+    if random( 0, 99 ) < scope then
       loot_level = loot_level + 1;
     end;
   end;
@@ -616,12 +645,10 @@ end;
 -- Shuffles and returns the given table.
 function Shuffle( table )
   for i = 1, getn( table ) do
-    for j = 1, 5 do
-      rand_index = random( 1, getn( table ) );
-      temp = table[ i ];
-      table[i] = table[ rand_index ];
-      table[ rand_index ] = temp;
-    end;
+    rand_index = random( 1, getn( table ) );
+    temp = table[ i ];
+    table[i] = table[ rand_index ];
+    table[ rand_index ] = temp;
   end;
   return table;
 end;
