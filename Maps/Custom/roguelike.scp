@@ -184,7 +184,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     302, 303,      305, 306, 307, 308, 309, 310,
     311, 312, 313, 314, 315, 316, 317, 318, 319,
     320, 321, 322, 323, 324,
-    -- artifacts (not included because of crashes/other problems: 392)
+    -- artefacts (not included because of crashes/other problems: 392)
     390, 391,      393, 394, 395, 396, 397, 398,
     399, 400, 401, 402, 403, 404, 405, 406, 407,
     408, 409, 410,
