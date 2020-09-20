@@ -7,6 +7,14 @@
 -- If you have any questions or suggestions, find me on Steam (id: bonesnake).
 ---------------------------------------------------------------------------------------------------------
 
+-- Etherlords 2 local function.
+function Local_Hook_Init()
+  randomseed( ExGetTickCount() * 1000 ); -- this makes RNG work as expected
+  Init_Constants();
+  Init_Dynamic_Constants();
+  Init_Variables();
+end;
+
 -- Initializes "constants".
 function Init_Constants()
   IS_VICTORY_ENABLED = true; -- whether to enable victory conditions
@@ -26,7 +34,7 @@ function Init_Constants()
   HERO_SHAPES = { "BlackMainHero-1", "BlueMainHero-1", "GreenMainHero-1", "RedMainHero-1", }; -- these are the shapes that the hero can spawn as
   BG_THEMES = { "ad_Black01", "ad_Blue01", "ad_Green01", "ad_Red01", }; -- table of background musics
 
-  SPELL_TABLE =
+  SPELL_TABLE = -- used as loot table and for main hero deck setup
   {
     { -- lvl 1 spells
       "STRT", "FRWA", "ZAPP", "LSST", "KBSH", "ORSH", "WLBR", "DRAT", "WNFL", -- chaot
@@ -176,7 +184,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
   });
   ID_TABLE_SPECIAL_OBJECTS = Shuffle(
   {
-    -- specializations (not included because of crashes/other problems: 267, 279, 301, 304)
+    -- specializations (not included because of issues: 267, 279, 301, 304)
     255,      268, 269, 270, 271, 272, 273, 274,
     275, 276, 277, 278,      280, 281, 282, 283,
     284, 285, 286, 287, 288, 289, 290, 291, 292,
@@ -184,7 +192,7 @@ function Init_Dynamic_Constants() -- "dynamic" because they are modified by the 
     302, 303,      305, 306, 307, 308, 309, 310,
     311, 312, 313, 314, 315, 316, 317, 318, 319,
     320, 321, 322, 323, 324,
-    -- artefacts (not included because of crashes/other problems: 392)
+    -- artefacts (not included because of issues: 392)
     390, 391,      393, 394, 395, 396, 397, 398,
     399, 400, 401, 402, 403, 404, 405, 406, 407,
     408, 409, 410,
@@ -211,7 +219,6 @@ end;
 
 -- Initializes variables.
 function Init_Variables()
-  onstep_tick_count = 0; -- in-game tick count recorded in the OnStep hook, see the OnBattleFinishing hook for more info
   is_main_hero_ready = false; -- used before giving control to the player
   rotation_count = 0; -- rotation count increases each time the teleporter is used
   placed_special_object_count = 0; -- the amount of special objects that have been placed
@@ -226,19 +233,19 @@ function Init_Variables()
 end;
 
 -- Etherlords 2 local function.
-function Local_Hook_Init()
-  randomseed( ExGetTickCount() * 1000 ); -- this makes RNG work as expected
-  Init_Constants();
-  Init_Dynamic_Constants();
-  Init_Variables();
-end;
-
--- Etherlords 2 local function.
 function Local_Hook_GameStarted()
   -- starts a random background music after loading a saved game
   if is_main_hero_ready then
     local bg_theme = GetRandomElement( BG_THEMES );
     ExStartBackgroundTheme( bg_theme );
+  end;
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnStep()
+  if ExIsAlive( g_MainHeroId ) and not is_main_hero_ready then
+    OnStep_Setup();
+    is_main_hero_ready = true;
   end;
 end;
 
@@ -254,13 +261,29 @@ function OnStep_Setup()
   ExAddCommandFinishObservation( "start" );
 end;
 
--- Etherlords 2 local function.
-function Local_Hook_OnStep()
-  if ExIsAlive( g_MainHeroId ) and not is_main_hero_ready then
-    OnStep_Setup();
-    is_main_hero_ready = true;
+-- Changes main hero's shape and spells.
+function SetUpMainHero()
+  -- sets hero's shape
+  local hero_shape = GetRandomElement( HERO_SHAPES );
+  ExSetHeroShape( g_MainHeroId, hero_shape );
+  -- clears hero's hand and gives new spells
+  ExClearHand( g_MainHeroId );
+  for i = 1, STARTING_SPELL_COUNT / STARTING_SPELL_RECURRENCE do
+    local spell = GetRandomElement( SPELL_TABLE[ 1 ] );
+    for j = 1, STARTING_SPELL_RECURRENCE do
+      ExAddSpellToHand( g_MainHeroId, spell );
+    end;
   end;
-  onstep_tick_count = ExGetTickCount();
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnPreUse( object_id, hero_id )
+  if object_id == ID_EXIT_TELEPORTER then
+    return OnPreUse_Teleporter();
+  elseif object_id == ID_SHOP_SIGN then
+    return OnPreUse_Sign();
+  end;
+  return 1;
 end;
 
 -- Called when the exit teleporter is used.
@@ -284,83 +307,6 @@ function OnPreUse_Sign()
   local description = "Shop of "..current_shop_description;
   ExMessageBoxStandardAction( description );
   return nil;
-end;
-
--- Etherlords 2 local function.
-function Local_Hook_OnPreUse( object_id, hero_id )
-  if object_id == ID_EXIT_TELEPORTER then
-    return OnPreUse_Teleporter();
-  elseif object_id == ID_SHOP_SIGN then
-    return OnPreUse_Sign();
-  end;
-  return 1;
-end;
-
--- Etherlords 2 local function.
-function Local_Hook_OnCloseMessageBox( callback )
-  -- ends the game if the OK button is clicked on the victory popup
-  if is_winning then
-    if callback == "OK" then
-      ExWinLoseMission( 1 );
-    else
-      is_winning = false;
-    end;
-  end;
-end;
-
--- Called when an enemy mob is killed.
-function OnHeroKill_Enemy( enemy_id )
-  RemoveCorpse( enemy_id ); -- this is necessary for both cleanup and non cleanup kills
-  -- only give loot if the mob is not killed by the code
-  if not is_mob_cleanup then
-    local enemy_level = ExGetHeroLevel( enemy_id );
-    local total_loot_count = GetLootCount( enemy_level );
-    -- loot system (same as the basic one, but handles loot overflow)
-    for i = 1, ceil( total_loot_count / MAX_LOOT_DISPLAYED ) do
-      local current_loot_count = total_loot_count - ( MAX_LOOT_DISPLAYED * ( i - 1 ) );
-      if current_loot_count > MAX_LOOT_DISPLAYED then
-        current_loot_count = MAX_LOOT_DISPLAYED;
-      end;
-      for j = 1, current_loot_count do
-        loot_level = GetLootLevel( enemy_level );
-        loot = GetRandomElement( SPELL_TABLE[ loot_level ] );
-        ExAddLootMessageSpell( loot );
-        ExAddSpell( g_MainHeroId, loot );
-      end;
-      ExSendLootMessage();
-    end;
-  end;
-end;
-
--- Etherlords 2 local function.
-function Local_Hook_OnHeroKill( hero_id )
-  if hero_id ~= g_MainHeroId then
-    OnHeroKill_Enemy( hero_id );
-  end;
-end;
-
--- Etherlords 2 local function.
-function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
-  -- smooth camera effect when declining combat requests
-  if winner_id ~= g_MainHeroId then
-    ExAddCommandCameraToObject( g_MainHeroId );
-  end;
-  return nil;
-end;
-
--- Changes main hero's shape and spells.
-function SetUpMainHero()
-  -- sets hero's shape
-  local hero_shape = GetRandomElement( HERO_SHAPES );
-  ExSetHeroShape( g_MainHeroId, hero_shape );
-  -- clears hero's hand and gives new spells
-  ExClearHand( g_MainHeroId );
-  for i = 1, STARTING_SPELL_COUNT / STARTING_SPELL_RECURRENCE do
-    local spell = GetRandomElement( SPELL_TABLE[ 1 ] );
-    for j = 1, STARTING_SPELL_RECURRENCE do
-      ExAddSpellToHand( g_MainHeroId, spell );
-    end;
-  end;
 end;
 
 -- Starts a new "rotation".
@@ -590,6 +536,46 @@ function PlaceMob( position, is_boss )
   mobs[ mobs_count + 1 ] = new_mob_id;
 end;
 
+-- Etherlords 2 local function.
+function Local_Hook_OnBattleFinishing( attacker_id, target_id, winner_id )
+  -- smooth camera effect when declining combat requests
+  if winner_id ~= g_MainHeroId then
+    ExAddCommandCameraToObject( g_MainHeroId );
+  end;
+  return nil;
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnHeroKill( hero_id )
+  if hero_id ~= g_MainHeroId then
+    OnHeroKill_Enemy( hero_id );
+  end;
+end;
+
+-- Called when an enemy mob is killed.
+function OnHeroKill_Enemy( enemy_id )
+  RemoveCorpse( enemy_id ); -- this is necessary for both cleanup and non cleanup kills
+  -- only give loot if the mob is not killed by the code
+  if not is_mob_cleanup then
+    local enemy_level = ExGetHeroLevel( enemy_id );
+    local total_loot_count = GetLootCount( enemy_level );
+    -- loot system (same as the basic one but handles loot overflow)
+    for i = 1, ceil( total_loot_count / MAX_LOOT_DISPLAYED ) do
+      local current_loot_count = total_loot_count - ( MAX_LOOT_DISPLAYED * ( i - 1 ) );
+      if current_loot_count > MAX_LOOT_DISPLAYED then
+        current_loot_count = MAX_LOOT_DISPLAYED;
+      end;
+      for j = 1, current_loot_count do
+        loot_level = GetLootLevel( enemy_level );
+        loot = GetRandomElement( SPELL_TABLE[ loot_level ] );
+        ExAddLootMessageSpell( loot );
+        ExAddSpell( g_MainHeroId, loot );
+      end;
+      ExSendLootMessage();
+    end;
+  end;
+end;
+
 -- Calculates the amount of loot a mob drops based on the mob's level.
 function GetLootCount( mob_level )
   local bonus_loot_count = 0;
@@ -621,6 +607,18 @@ function GetLootLevel( mob_level )
     end;
   end;
   return loot_level;
+end;
+
+-- Etherlords 2 local function.
+function Local_Hook_OnCloseMessageBox( callback )
+  -- ends the game if the OK button is clicked on the victory popup
+  if is_winning then
+    if callback == "OK" then
+      ExWinLoseMission( 1 );
+    else
+      is_winning = false;
+    end;
+  end;
 end;
 
 -- Returns a random element from the given table.
