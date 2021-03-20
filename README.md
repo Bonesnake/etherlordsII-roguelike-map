@@ -35,8 +35,10 @@ To start the map, launch the game, go into *Single* -> *Mission* -> *New*, selec
 [The map's discussion page](https://steamcommunity.com/app/270790/discussions/1/1639794651165170785/)\
 [Etherlords II on Steam](https://store.steampowered.com/app/270790/Etherlords_II/)\
 [Etherlords II on GOG](https://www.gog.com/game/etherlords_2)\
-[Map Editor Reference by Ether Planes](http://etherplanes.net/index.php?&lang=en&section=MapEditing&page=Reference) *- Sadly, I cannot provide links for the map editor because those I've found on the internet require a CD instalment. The GOG version of the game has the map editor, only the Steam version lacks it, but if you manage to get your hands on the editor, you can use it with the Steam version too.*\
+[Map Editor Reference by Ether Planes](http://etherplanes.net/index.php?&lang=en&section=MapEditing&page=Reference) *- A must-have for scripting!*\
 [Catch the Thief](https://github.com/aloeser/Etherlords2Map) *- A high quality, challenging custom map for Etherlords II. It has some unique features and offers many hours of playtime. If you want to play something similar to the main campaign, I strongly recommend it!*
+
+*Sadly, I cannot provide links for the map editor because those I've found on the internet require a CD instalment. The GOG version of the game has the map editor, only the Steam version lacks it, but if you manage to get your hands on the editor, you can use it with the Steam version too.*
 
 ## Contact
 If you have any questions or suggestions, feel free to find me on [Steam](https://steamcommunity.com/id/bonesnake/).
